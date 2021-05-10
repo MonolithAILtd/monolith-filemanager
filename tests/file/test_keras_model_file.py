@@ -1,19 +1,19 @@
 from unittest import TestCase, main
 from unittest.mock import patch
 
-from general_filemanager.file.keras_model_file import KerasModelFile
+from monolith_filemanager.file.keras_model_file import KerasModelFile
 
 
 class TestKerasModelFile(TestCase):
 
-    @patch("general_filemanager.file.keras_model_file.File.__init__")
+    @patch("monolith_filemanager.file.keras_model_file.File.__init__")
     def test___init__(self, mock_file_init):
         mock_file_init.return_value = None
         KerasModelFile(path="test")
         mock_file_init.assert_called_once_with(path="test")
 
-    @patch("general_filemanager.file.keras_model_file.load_model")
-    @patch("general_filemanager.file.keras_model_file.KerasModelFile.__init__")
+    @patch("monolith_filemanager.file.keras_model_file.load_model")
+    @patch("monolith_filemanager.file.keras_model_file.KerasModelFile.__init__")
     def test_read_file(self, mock_init, mock_load_model):
         mock_init.return_value = None
         test = KerasModelFile(path="test")
@@ -23,8 +23,8 @@ class TestKerasModelFile(TestCase):
         mock_init.assert_called_once_with(path="test")
         mock_load_model.assert_called_once_with("/some/path.keras_model", compile=False, custom_objects={})
 
-    @patch("general_filemanager.file.keras_model_file.save_model")
-    @patch("general_filemanager.file.keras_model_file.KerasModelFile.__init__")
+    @patch("monolith_filemanager.file.keras_model_file.save_model")
+    @patch("monolith_filemanager.file.keras_model_file.KerasModelFile.__init__")
     def test_write_file(self, mock_init, mock_save_model):
         mock_init.return_value = None
 

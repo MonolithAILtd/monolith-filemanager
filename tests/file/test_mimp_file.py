@@ -1,11 +1,11 @@
 from unittest import TestCase, main
 from unittest.mock import patch
-from general_filemanager.file.mimp_file import MimpFile
+from monolith_filemanager.file.mimp_file import MimpFile
 
 
 class TestMimpFile(TestCase):
 
-    @patch("general_filemanager.file.mimp_file.File.__init__")
+    @patch("monolith_filemanager.file.mimp_file.File.__init__")
     def test___init__(self, mock_init):
         mock_init.return_value = None
         test = MimpFile(path="test.mimp")
@@ -48,10 +48,10 @@ class TestMimpFile(TestCase):
         test_data = {"header": {"version": 1}, "steps": [{}, {}], "something else": "this is something else"}
         self.assertEqual({"header": {"version": 1}, "steps": [{}, {}]}, MimpFile.format_data(data=test_data))
 
-    @patch("general_filemanager.file.mimp_file.File.__init__")
-    @patch("general_filemanager.file.mimp_file.msgpack")
-    @patch("general_filemanager.file.mimp_file.MimpFile.format_data")
-    @patch("general_filemanager.file.mimp_file.open")
+    @patch("monolith_filemanager.file.mimp_file.File.__init__")
+    @patch("monolith_filemanager.file.mimp_file.msgpack")
+    @patch("monolith_filemanager.file.mimp_file.MimpFile.format_data")
+    @patch("monolith_filemanager.file.mimp_file.open")
     def test_read(self, mock_open, mock_format_data, mock_msgpack, mock_init):
         mock_init.return_value = None
         test = MimpFile(path="test.mimp")
@@ -67,10 +67,10 @@ class TestMimpFile(TestCase):
         self.assertEqual(mock_format_data.return_value.__getitem__.return_value, test.steps)
         self.assertEqual(mock_format_data.return_value, outcome)
 
-    @patch("general_filemanager.file.mimp_file.File.__init__")
-    @patch("general_filemanager.file.mimp_file.msgpack")
-    @patch("general_filemanager.file.mimp_file.MimpFile.format_data")
-    @patch("general_filemanager.file.mimp_file.open")
+    @patch("monolith_filemanager.file.mimp_file.File.__init__")
+    @patch("monolith_filemanager.file.mimp_file.msgpack")
+    @patch("monolith_filemanager.file.mimp_file.MimpFile.format_data")
+    @patch("monolith_filemanager.file.mimp_file.open")
     def test_write(self, mock_open, mock_format_data, mock_msgpack, mock_init):
         mock_init.return_value = None
         test = MimpFile(path="test.mimp")

@@ -24,7 +24,7 @@ directives = {
 }
 
 setuptools.setup(
-    name="general_filemanager",
+    name="monolith_filemanager",
     version="0.0.2",
     author="Maxwell Flitton",
     author_email="maxwell@gmail.com",
@@ -113,7 +113,7 @@ setuptools.setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'file-hello = general_filemanager.console_commands.hello:print_logo',
+            'file-hello = monolith_filemanager.console_commands.hello:print_logo',
         ],
     }
     # ext_modules=cythonize("caching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),

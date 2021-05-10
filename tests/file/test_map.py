@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
-from general_filemanager.file import FileMap, Singleton
+from monolith_filemanager.file import FileMap, Singleton
 
 
 class TestFileMap(TestCase):

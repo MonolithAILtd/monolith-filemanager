@@ -16,7 +16,7 @@ class FileManager:
     """
 
     BASE_DIR = os.getcwd()
-    FILE_PATH = "/tests/general_filemanager.connection_type.s3storage/"
+    FILE_PATH = "/tests/monolith_filemanager.connection_type.s3storage/"
 
     def __init__(self):
         """

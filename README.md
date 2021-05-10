@@ -10,9 +10,9 @@ done by importing the factory that will select the right adapter based on the fi
 To use it do the following:
 
 ```python
-from general_filemanager import file_manager_factory
+from monolith_filemanager import file_manager_factory
 
-file = file_manager_factory(file_path="some/file.path.txt")
+file = file_manager(file_path="some/file.path.txt")
 
 file_data = file.read_file()
 
@@ -22,19 +22,22 @@ file.write_file(data=file_data)
 ### s3 interface
 The interface is exactly the same, however, there is sometimes the need for caching when reading and writing to 
 s3 buckets. This can we handled with the ```monolith-caching``` module which can be installed
-by ```pip install monolithcaching```. 
+by ```pip install monolithcaching```. The caching module enables the filemanager so store files 
+that have just been downloaded from the s3 to read for some formats.
 
 ```python
-from general_filemanager import file_manager_factory
+from monolith_filemanager import file_manager
 from monolithcaching import CacheManager
 
 manager = CacheManager(local_cache_path="/path/to/local/directory/for/all/caches")
-file = file_manager_factory(file_path="s3://some/file.path.txt", caching=manager)
+file = file_manager(file_path="s3://some/file.path.txt", caching=manager)
 
 file_data = file.read_file()
 
 file.write_file(data=file_data)
 ``` 
+It has to be noted that the ```s3``` is triggered by having the ```"s3://"``` at the start of the 
+file path.
 
 ### Custom Reading
 Some files require custom reading where the file is parsed line by line rather than converted entirely to another format. 
@@ -47,9 +50,9 @@ def example_read_function(filepath):
     ... read the file ... 
     return data
 
-from general_filemanager import file_manager_factory
+from monolith_filemanager import file_manager
 
-file = file_manager_factory(file_path="some/file.path.txt")
+file = file_manager(file_path="some/file.path.txt")
 
 file_data = file.custom_read_file(example_read_function)
 ```
@@ -59,9 +62,9 @@ If a file path refers to a directory, you can use `ls` to get all the direct sub
 A tuple of two lists are returned - the list of subdirectories, followed by the list of files.
 
 ```python
-from general_filemanager import file_manager_factory
+from monolith_filemanager import file_manager
 
-folder = file_manager_factory(file_path="some/folder")
+folder = file_manager(file_path="some/folder")
 
 dirs, files = folder.ls()
 ```
@@ -73,14 +76,14 @@ object so it can be directly imported. The ```FilePath``` object has the ability
 and if the file exists. To use it do the following:
 
 ```python
-from general_filemanager import FilePath
+from monolith_filemanager import FilePath
 
 path = FilePath("this/is/a/path.txt")
 ```
 To get documentation on the individual properties and functions simply call the help function:
 
 ```python
-from general_filemanager import FilePath
+from monolith_filemanager import FilePath
 
 help(FilePath)
 ```

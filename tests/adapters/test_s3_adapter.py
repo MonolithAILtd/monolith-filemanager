@@ -1,11 +1,11 @@
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock, call
-from general_filemanager.adapters.s3_processes import S3ProcessesAdapter, S3ProcessesAdapterError
+from monolith_filemanager.adapters.s3_processes import S3ProcessesAdapter, S3ProcessesAdapterError
 
 
 class TestS3ProcessesAdapter(TestCase):
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def setUp(self, mock_init) -> None:
         mock_init.return_value = None
         self.test_file = S3ProcessesAdapter(file_path="mock/folder/test.xlsx")
@@ -13,8 +13,8 @@ class TestS3ProcessesAdapter(TestCase):
         self.test_folder = S3ProcessesAdapter(file_path="mock/folder/path")
         self.test_folder.path = "mock/folder/path"
 
-    @patch("general_filemanager.adapters.s3_processes.V1Engine")
-    @patch("general_filemanager.adapters.s3_processes.Base.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.V1Engine")
+    @patch("monolith_filemanager.adapters.s3_processes.Base.__init__")
     def test___init__(self, mock_init, mock_engine):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test")
@@ -23,7 +23,7 @@ class TestS3ProcessesAdapter(TestCase):
         mock_engine.assert_called_once_with()
         self.assertEqual(mock_engine.return_value, test._engine)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_local_file_object(self, mock_init):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test path")
@@ -35,9 +35,9 @@ class TestS3ProcessesAdapter(TestCase):
         test.file_types.get_file.return_value.assert_called_once_with(path=test.path)
         self.assertEqual(test.file_types.get_file.return_value.return_value, out_come)
 
-    @patch("general_filemanager.adapters.s3_processes.FilePath")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.local_file_object")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.FilePath")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.local_file_object")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_read_file(self, mock_init, mock_local_file_object, mock_file_path):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path=MagicMock())
@@ -63,7 +63,7 @@ class TestS3ProcessesAdapter(TestCase):
         self.assertEqual(mock_file_path.return_value, test.path)
         self.assertEqual(mock_local_file_object.return_value.read.return_value, second_out_come)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_read_raw_file(self, mock_init):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path=MagicMock())
@@ -74,7 +74,7 @@ class TestS3ProcessesAdapter(TestCase):
         test._engine.download_raw_data_file.assert_called_once_with(storage_path=test.path.to_string.return_value)
         self.assertEqual(out_come, test._engine.download_raw_data_file.return_value)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_custom_read_file(self, mock_init):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test path")
@@ -98,8 +98,8 @@ class TestS3ProcessesAdapter(TestCase):
         custom_read_function.assert_called_once_with(test.path)
         self.assertEqual(out_come, data_output)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.local_file_object")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.local_file_object")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_write_file_supports_s3(self, mock_init, mock_local_file_object):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path=MagicMock())
@@ -110,9 +110,9 @@ class TestS3ProcessesAdapter(TestCase):
         test.write_file(data=mock_data)
         mock_local_file_object.return_value.write.assert_called_once_with(mock_data)
 
-    @patch("general_filemanager.adapters.s3_processes.FilePath")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.local_file_object")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.FilePath")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.local_file_object")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_write_file_not_supports_s3(self, mock_init, mock_local_file_object, mock_file_path):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path=MagicMock())
@@ -125,7 +125,7 @@ class TestS3ProcessesAdapter(TestCase):
         test.write_file(data=mock_data)
         test._engine.upload_data_from_file.assert_called_once_with(file_path=mock_file_path.return_value.to_string.return_value, storage_path=test.path.to_string.return_value)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_write_raw_file(self, mock_init):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path=MagicMock())
@@ -136,7 +136,7 @@ class TestS3ProcessesAdapter(TestCase):
         test.write_raw_file(data=mock_data)
         test._engine.upload_data.assert_called_once_with(storage_path=test.path.to_string.return_value, data=mock_data)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_delete_file(self, mock_init):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test path")
@@ -146,11 +146,11 @@ class TestS3ProcessesAdapter(TestCase):
 
         test._engine.delete.assert_called_once_with(storage_path=test.path)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.increment_files")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.increment_files")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_write_stream(self, mock_init, mock_ls, mock_name_taken, mock_exists, mock_increment_files):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path=MagicMock())
@@ -188,8 +188,8 @@ class TestS3ProcessesAdapter(TestCase):
         test._engine.upload_data_from_file.assert_called_once_with(storage_path=test.path, file_path=cache_path)
         mock_increment_files.assert_has_calls = []
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_increment_files(self, mock_init, mock_exists):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path=MagicMock())
@@ -203,7 +203,7 @@ class TestS3ProcessesAdapter(TestCase):
         test.increment_files()
         self.assertEqual("mock/path/folder/file 3.txt", test.path)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_create_directory_if_not_exists(self, mock_init):
         mock_init.return_value = None
         mock_path = MagicMock()
@@ -214,7 +214,7 @@ class TestS3ProcessesAdapter(TestCase):
         test.create_directory_if_not_exists()
         test._engine.create_folder.assert_called_once_with(storage_path=mock_path)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_exists(self, mock_init):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test path")
@@ -224,7 +224,7 @@ class TestS3ProcessesAdapter(TestCase):
         test.exists()
         test._engine.exists.assert_called_once_with(storage_path=test.path)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_ls(self, mock_init):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test path")
@@ -234,8 +234,8 @@ class TestS3ProcessesAdapter(TestCase):
         test.ls()
         test._engine.ls.assert_called_once_with(storage_path=test.path.to_string.return_value)
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_batch_delete(self, mock_init, mock_delete_file):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test/path")
@@ -246,9 +246,9 @@ class TestS3ProcessesAdapter(TestCase):
         test.batch_delete(paths=mock_paths)
         mock_delete_file.assert_has_calls = [call(path=test.path + mock_paths[0]),
                                              call(path=test.path + mock_paths[1])]
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
     def test_rename_file(self, mock_ls, mock_exists, mock_check_name_taken):
         new_name = "new_name"
         mock_ls.return_value = ({}, [])
@@ -273,10 +273,10 @@ class TestS3ProcessesAdapter(TestCase):
         mock_Object.delete.assert_called_once_with()
         mock_engine._split_s3_path.assert_has_calls = [call(self.test_file.path), call(f"mock/folder/{new_name}.xlsx")]
 
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.copy_folder")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
-    @patch("general_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.copy_folder")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
     def test_rename_folder(self, mock_ls, mock_check_name_taken, mock_copy_folder, mock_delete_file):
         new_name = "new_folder"
         mock_ls.return_value = ({}, [])

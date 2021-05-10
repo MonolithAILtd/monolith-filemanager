@@ -1,7 +1,7 @@
 from unittest import TestCase, main
 
 # from machine_learning.VERSION_ONE.model.compose.scaled_regressor import ScaledInputOutputRegressor
-from general_filemanager.adapters.version_identifier import VersionIdentifierAdapter
+from monolith_filemanager.adapters.version_identifier import VersionIdentifierAdapter
 
 
 class MlErrorGenerator:

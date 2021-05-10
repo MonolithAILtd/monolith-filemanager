@@ -1,18 +1,18 @@
 from unittest import TestCase, main
 from unittest.mock import patch
-from general_filemanager.file.numpy_file import NumpyFile
+from monolith_filemanager.file.numpy_file import NumpyFile
 
 
 class TestNumpyFile(TestCase):
 
-    @patch("general_filemanager.file.numpy_file.File.__init__")
+    @patch("monolith_filemanager.file.numpy_file.File.__init__")
     def test___init__(self, mock_file_init):
         NumpyFile(path="test")
         mock_file_init.return_value = None
         mock_file_init.assert_called_once_with(path="test")
 
-    @patch("general_filemanager.file.numpy_file.np")
-    @patch("general_filemanager.file.numpy_file.NumpyFile.__init__")
+    @patch("monolith_filemanager.file.numpy_file.np")
+    @patch("monolith_filemanager.file.numpy_file.NumpyFile.__init__")
     def test_read_file(self, mock_init, mock_np):
         mock_init.return_value = None
         test = NumpyFile(path="test")
@@ -22,8 +22,8 @@ class TestNumpyFile(TestCase):
         mock_init.assert_called_once_with(path="test")
         mock_np.load.assert_called_once_with("/some/path.npy")
 
-    @patch("general_filemanager.file.numpy_file.np")
-    @patch("general_filemanager.file.numpy_file.NumpyFile.__init__")
+    @patch("monolith_filemanager.file.numpy_file.np")
+    @patch("monolith_filemanager.file.numpy_file.NumpyFile.__init__")
     def test_write_file(self, mock_init, mock_np):
         mock_init.return_value = None
         test = NumpyFile(path="test")

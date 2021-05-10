@@ -7,10 +7,10 @@ from datetime import datetime
 
 from flask import send_from_directory
 
-from general_filemanager.adapters.base import Base
-from general_filemanager.path import FilePath
-from general_filemanager.errors import FileManagerError
-from general_filemanager.file.base import File
+from monolith_filemanager.adapters.base import Base
+from monolith_filemanager.path import FilePath
+from monolith_filemanager.errors import FileManagerError
+from monolith_filemanager.file.base import File
 from .errors import LocalProcessesAdapterError
 
 

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Tuple, List, Union, Optional
 
-from general_filemanager.file import FileMap
-from general_filemanager.path import FilePath
+from monolith_filemanager.file import FileMap
+from monolith_filemanager.path import FilePath
 
 
 class Base(ABC):

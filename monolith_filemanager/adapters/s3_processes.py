@@ -4,10 +4,10 @@ from urllib.parse import unquote
 
 import globre
 
-from general_filemanager.adapters.base import Base
-from general_filemanager.adapters.errors import S3ProcessesAdapterError
-from general_filemanager.file.base import File, FilePath
-from general_filemanager.s3storage import V1Engine
+from monolith_filemanager.adapters.base import Base
+from monolith_filemanager.adapters.errors import S3ProcessesAdapterError
+from monolith_filemanager.file.base import File, FilePath
+from monolith_filemanager.s3storage import V1Engine
 
 
 class S3ProcessesAdapter(Base):
@@ -101,7 +101,7 @@ class S3ProcessesAdapter(Base):
             '1) pip install the Monolith caching module;\n'
             '2) Create file objects passing an instance of `caching.CacheManager()` to `file_manager` method;\n'
             'For example:'
-            '`file = general_filemanager.file_manager(file_path=file_path, caching=caching.CacheManager())`'
+            '`file = monolith_filemanager.file_manager(file_path=file_path, caching=caching.CacheManager())`'
         )
 
     def write_file(self, data: Any) -> None:

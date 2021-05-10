@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
-from general_filemanager.file.pandas_file import PandasFile
+from monolith_filemanager.file.pandas_file import PandasFile
 import pandas as pd
 
 LOADING_METHODS = {
@@ -16,13 +16,13 @@ LOADING_METHODS = {
 
 class TestPandasFile(TestCase):
 
-    @patch("general_filemanager.file.pandas_file.File.__init__")
+    @patch("monolith_filemanager.file.pandas_file.File.__init__")
     def test___init__(self, mock_file_init):
         PandasFile(path="test")
         mock_file_init.return_value = None
         mock_file_init.assert_called_once_with(path="test")
 
-    @patch("general_filemanager.file.pandas_file.PandasFile.__init__")
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__")
     def test__map_write_functions(self, mock_init):
         mock_init.return_value = None
         test = PandasFile(path="test")
@@ -34,7 +34,7 @@ class TestPandasFile(TestCase):
         self.assertEqual(test_input.to_csv, out_come)
         self.assertEqual(test_input.to_csv("test path"), out_come("test path"))
 
-    @patch("general_filemanager.file.pandas_file.PandasFile.__init__")
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__")
     def test_read(self, mock_init):
         mock_init.return_value = None
         test = PandasFile(path="test")
@@ -46,8 +46,8 @@ class TestPandasFile(TestCase):
         self.assertEqual(test.LOADING_METHODS["csv"].return_value, out_come)
         test.LOADING_METHODS["csv"].assert_called_once_with(test.path)
 
-    @patch("general_filemanager.file.pandas_file.PandasFile._map_write_functions")
-    @patch("general_filemanager.file.pandas_file.PandasFile.__init__")
+    @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__")
     def test_write(self, mock_init, mock_map):
         mock_init.return_value = None
         test = PandasFile(path="test")

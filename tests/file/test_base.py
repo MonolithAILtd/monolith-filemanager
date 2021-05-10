@@ -1,12 +1,12 @@
 from unittest import TestCase, main
 from unittest.mock import patch
-from general_filemanager.file.base import File
+from monolith_filemanager.file.base import File
 
 
 class TestBase(TestCase):
 
     @patch.multiple(File, __abstractmethods__=set())
-    @patch("general_filemanager.file.base.FilePath.__init__")
+    @patch("monolith_filemanager.file.base.FilePath.__init__")
     def test___init__(self, mock_init):
         mock_init.return_value = None
 
@@ -18,7 +18,7 @@ class TestBase(TestCase):
         test = File(path=input_path)
         self.assertEqual(input_path, test.path)
 
-        with patch("general_filemanager.file.base.isinstance") as mock_instance:
+        with patch("monolith_filemanager.file.base.isinstance") as mock_instance:
             mock_instance.return_value = True
             test = File(path=input_path)
             self.assertEqual(input_path, test.path)

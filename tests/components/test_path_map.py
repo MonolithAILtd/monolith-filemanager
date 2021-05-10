@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 
-from general_filemanager.components.path_map import PathMap
+from monolith_filemanager.components.path_map import PathMap
 
 
 class TestPathMap(TestCase):

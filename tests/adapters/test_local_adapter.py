@@ -1,12 +1,12 @@
 import itertools
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock, call
-from general_filemanager.adapters.local_file_processes import LocalFileProcessesAdapter, LocalProcessesAdapterError
+from monolith_filemanager.adapters.local_file_processes import LocalFileProcessesAdapter, LocalProcessesAdapterError
 
 
 class TestLocalFileProcessesAdapter(TestCase):
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def setUp(self, mock_init) -> None:
         # todo - flesh this out later to apply to more test cases
         mock_init.return_value = None
@@ -37,7 +37,7 @@ class TestLocalFileProcessesAdapter(TestCase):
         with self.assertRaises(Exception):
             LocalFileProcessesAdapter.check_local_file(path=mock_path)
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_local_file_object(self, mock_init):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -49,9 +49,9 @@ class TestLocalFileProcessesAdapter(TestCase):
         test.file_types.get_file.return_value.assert_called_once_with(path=test.path)
         self.assertEqual(test.file_types.get_file.return_value.return_value, out_come)
 
-    @patch("general_filemanager.adapters.local_file_processes.send_from_directory")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.send_from_directory")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_export_file(self, mock_init, mock_check_local_file, mock_send_from_directory):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -65,9 +65,9 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_send_from_directory.assert_called_once_with(directory="python/path/test.csv", filename=test.path.file)
         self.assertEqual(out_come, mock_send_from_directory.return_value)
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.local_file_object")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.local_file_object")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_read_file(self, mock_init, mock_check, mock_local_file_object):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -78,9 +78,9 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_check.assert_called_once_with(path=test.path)
         self.assertEqual(mock_local_file_object.return_value.read.return_value, out_come)
 
-    @patch("general_filemanager.adapters.local_file_processes.open")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.open")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_read_raw_file(self, mock_init, mock_check, mock_open):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -92,8 +92,8 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_file_returned = mock_open.return_value.__enter__.return_value
         self.assertEqual(mock_file_returned.read.return_value, out_come)
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_custom_read_file(self, mock_init, mock_check):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -108,9 +108,9 @@ class TestLocalFileProcessesAdapter(TestCase):
         custom_read_function.assert_called_once_with(test.path)
         self.assertEqual(out_come, data_output)
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.create_directory_if_not_exists")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.local_file_object")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.create_directory_if_not_exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.local_file_object")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_write_file(self, mock_init, mock_local_file_object, mock_create_dir):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -121,9 +121,9 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_create_dir.assert_called_once()
         mock_local_file_object.return_value.write.assert_called_once_with(data=mock_data)
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.create_directory_if_not_exists")
-    @patch("general_filemanager.adapters.local_file_processes.open")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.create_directory_if_not_exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.open")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_write_raw_file(self, mock_init, mock_open, mock_create_dir):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -136,10 +136,10 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_file_returned = mock_open.return_value.__enter__.return_value
         mock_file_returned.write.assert_called_once_with(mock_data)
 
-    @patch("general_filemanager.adapters.local_file_processes.os")
-    @patch("general_filemanager.adapters.local_file_processes.shutil")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.os")
+    @patch("monolith_filemanager.adapters.local_file_processes.shutil")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_delete_file_directory(self, mock_init, mock_check, mock_shutil, mock_os):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -152,9 +152,9 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_check.assert_called_once_with(path=test.path)
         mock_shutil.rmtree.assert_called_once_with(test.path)
 
-    @patch("general_filemanager.adapters.local_file_processes.os")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.os")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_delete_file_single(self, mock_init, mock_check, mock_os):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -167,12 +167,12 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_check.assert_called_once_with(path=test.path)
         mock_os.remove.assert_called_once_with(test.path)
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.create_directory_if_not_exists")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.increment_files")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.exists")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
-    @patch("general_filemanager.adapters.local_file_processes.os.walk")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.create_directory_if_not_exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.increment_files")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.walk")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_write_stream(self, mock_init, mock_walk, mock_check_name_taken, mock_exists, mock_increment_files, mock_create_dir):
         # test if name taken
         mock_init.return_value = None
@@ -206,8 +206,8 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_create_dir.assert_called_once()
         mock_stream.save.assert_called_once_with(test.path)
 
-    @patch("general_filemanager.adapters.local_file_processes.os.path.exists")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_increment_files(self, mock_init, mock_exists):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -221,13 +221,13 @@ class TestLocalFileProcessesAdapter(TestCase):
         test.increment_files()
         self.assertEqual("mock/path/folder/file 3.txt", test.path)
 
-    @patch("general_filemanager.adapters.local_file_processes.os.makedirs")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.exists")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.increment_folders")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
-    @patch("general_filemanager.adapters.local_file_processes.os.walk")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.dirname")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.makedirs")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.increment_folders")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.walk")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.dirname")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_create_directory_if_not_exists(self, mock_init, mock_os_path_dirname, mock_os_walk, mock_check_name_taken,
                                             mock_increment_folders, mock_os_path_exists, mock_os_makedirs):
         mock_init.return_value = None
@@ -257,8 +257,8 @@ class TestLocalFileProcessesAdapter(TestCase):
         self.assertEqual("folder 2", test.create_directory_if_not_exists(increment=True))
         mock_increment_folders.assert_called_once_with(dirname="mock/pardir/folder")
 
-    @patch("general_filemanager.adapters.local_file_processes.os.makedirs")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.makedirs")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.exists")
     def test_increment_folders(self, mock_os_path_exists, mock_os_makedirs):
         mock_dirname = "mock/pardir/folder"
         mock_os_path_exists.return_value = False
@@ -270,8 +270,8 @@ class TestLocalFileProcessesAdapter(TestCase):
         LocalFileProcessesAdapter.increment_folders(dirname=mock_dirname)
         mock_os_makedirs.assert_called_once_with("mock/pardir/folder 3")
 
-    @patch("general_filemanager.adapters.local_file_processes.os.path")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_exists(self, mock_init, mock_os_path):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -280,10 +280,10 @@ class TestLocalFileProcessesAdapter(TestCase):
         test.exists()
         mock_os_path.exists.assert_called_once_with(test.path)
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter._get_file_info")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.join")
-    @patch("general_filemanager.adapters.local_file_processes.os.walk")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter._get_file_info")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.join")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.walk")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_ls(self, mock_init, mock_os_walk, mock_os_path_join, mock_get_file_info):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test path", caching=MagicMock())
@@ -294,16 +294,16 @@ class TestLocalFileProcessesAdapter(TestCase):
 
         self.assertEqual(({"file1.txt": {"last_modified": "last_mod_date", "size": 100}}, ["dir1", "dir2"]), test.ls())
 
-    @patch("general_filemanager.adapters.local_file_processes.os.path.getsize")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.getmtime")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.getsize")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.getmtime")
     def test__get_file_info(self, mock_path_getmtime, mock_path_get_size):
         mock_file = MagicMock()
         mock_path_getmtime.return_value = 0
         mock_path_get_size.return_value = 100
         self.assertEqual(('1970-01-01 00:00:00', 100), LocalFileProcessesAdapter._get_file_info(mock_file))
 
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.delete_file")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.delete_file")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_batch_delete(self, mock_init, mock_delete_file):
         mock_init.return_value = None
         test = LocalFileProcessesAdapter(file_path="test/path", caching=MagicMock())
@@ -315,12 +315,12 @@ class TestLocalFileProcessesAdapter(TestCase):
         mock_delete_file.assert_has_calls = [call(path=test.path + mock_paths[0]),
                                              call(path=test.path + mock_paths[1])]
 
-    @patch("general_filemanager.adapters.local_file_processes.os.rename")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.exists")
-    @patch("general_filemanager.adapters.local_file_processes.os.walk")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.splitext")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.dirname")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.rename")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.walk")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.splitext")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.dirname")
     def test_rename_file(self, mock_os_dirname, mock_os_splitext, mock_os_walk, mock_exists, mock_check_name_taken,
                          mock_os_rename):
         new_name = "new_file"
@@ -334,11 +334,11 @@ class TestLocalFileProcessesAdapter(TestCase):
         self.test_file.rename_file(new_name=new_name)
         mock_os_rename.assert_called_once_with(self.test_file.path, new_path)
 
-    @patch("general_filemanager.adapters.local_file_processes.os.rename")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
-    @patch("general_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.exists")
-    @patch("general_filemanager.adapters.local_file_processes.os.walk")
-    @patch("general_filemanager.adapters.local_file_processes.os.path.dirname")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.rename")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_name_taken")
+    @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.walk")
+    @patch("monolith_filemanager.adapters.local_file_processes.os.path.dirname")
     def test_rename_folder(self, mock_os_dirname, mock_os_walk, mock_exists, mock_check_name, mock_rename):
         new_name = "new_folder"
         mock_os_dirname.return_value = "/".join(self.test_folder.path.split("/")[:-1])

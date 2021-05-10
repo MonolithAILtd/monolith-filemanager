@@ -1,7 +1,7 @@
 import datetime
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch
-from general_filemanager.s3storage.file_manager import FileManager
+from monolith_filemanager.s3storage.file_manager import FileManager
 
 
 class TestFileManager(TestCase):

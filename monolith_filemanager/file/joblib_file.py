@@ -1,7 +1,7 @@
 import joblib
 from typing import Any, Union
 
-from general_filemanager.file.base import File
+from monolith_filemanager.file.base import File
 from ..path import FilePath
 
 

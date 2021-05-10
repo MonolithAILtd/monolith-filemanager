@@ -28,33 +28,33 @@ class FileMap(dict, metaclass=Singleton):
         :return: None
         """
         if self.bindings_imported is False:
-            from general_filemanager.file.gmsh_file import GmshFile
+            from monolith_filemanager.file.gmsh_file import GmshFile
             self.add_binding(file_object=GmshFile)
-            from general_filemanager.file.hdf5_file import Hdf5File
+            from monolith_filemanager.file.hdf5_file import Hdf5File
             self.add_binding(file_object=Hdf5File)
-            from general_filemanager.file.json_file import JSONFile
+            from monolith_filemanager.file.json_file import JSONFile
             self.add_binding(file_object=JSONFile)
-            from general_filemanager.file.keras_model_file import KerasModelFile
+            from monolith_filemanager.file.keras_model_file import KerasModelFile
             self.add_binding(file_object=KerasModelFile)
-            from general_filemanager.file.mimp_file import MimpFile
+            from monolith_filemanager.file.mimp_file import MimpFile
             self.add_binding(file_object=MimpFile)
-            from general_filemanager.file.numpy_file import NumpyFile
+            from monolith_filemanager.file.numpy_file import NumpyFile
             self.add_binding(file_object=NumpyFile)
-            from general_filemanager.file.pandas_file import PandasFile
+            from monolith_filemanager.file.pandas_file import PandasFile
             self.add_binding(file_object=PandasFile)
-            from general_filemanager.file.pickle_file import PickleFile
+            from monolith_filemanager.file.pickle_file import PickleFile
             self.add_binding(file_object=PickleFile)
-            from general_filemanager.file.standard_pickle_file import StandardPickleFile
+            from monolith_filemanager.file.standard_pickle_file import StandardPickleFile
             self.add_binding(file_object=StandardPickleFile)
-            from general_filemanager.file.vtk_file import VtkFile
+            from monolith_filemanager.file.vtk_file import VtkFile
             self.add_binding(file_object=VtkFile)
-            from general_filemanager.file.yml_file import YmlFile
+            from monolith_filemanager.file.yml_file import YmlFile
             self.add_binding(file_object=YmlFile)
-            from general_filemanager.file.joblib_file import JoblibFile
+            from monolith_filemanager.file.joblib_file import JoblibFile
             self.add_binding(file_object=JoblibFile)
-            from general_filemanager.file.protobuf_file import ProtobufFile
+            from monolith_filemanager.file.protobuf_file import ProtobufFile
             self.add_binding(file_object=ProtobufFile)
-            from general_filemanager.file.matlab import MatlabFile
+            from monolith_filemanager.file.matlab import MatlabFile
             self.add_binding(file_object=MatlabFile)
 
             self.bindings_imported = True

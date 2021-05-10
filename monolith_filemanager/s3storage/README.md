@@ -16,7 +16,7 @@ The engine is stored in the ```__init__.py```. It's currently got a flat structu
 Below is an example of using the engine pickle a list, upload it, download it, and deserialise it for use:
 
 ```python
-from general_filemanager.s3storage import V1Engine
+from monolith_filemanager.s3storage import V1Engine
 import pickle
 
 test = V1Engine()

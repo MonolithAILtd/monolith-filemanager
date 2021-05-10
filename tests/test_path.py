@@ -1,13 +1,13 @@
 from unittest import TestCase, main
 from unittest.mock import patch
 
-from general_filemanager.path import FilePath
+from monolith_filemanager.path import FilePath
 
 
 class TestFilePath(TestCase):
 
-    @patch("general_filemanager.path.FilePath.check_if_s3")
-    @patch("general_filemanager.path.FilePath.get_file_type")
+    @patch("monolith_filemanager.path.FilePath.check_if_s3")
+    @patch("monolith_filemanager.path.FilePath.get_file_type")
     def test___init__(self, mock_get_file_type, mock_check_if_s3):
         test = FilePath("this/is/a/path.txt")
 
@@ -25,8 +25,8 @@ class TestFilePath(TestCase):
         self.assertEqual("txt", FilePath.get_file_type(file_string="test.txt"))
         self.assertIsNone(FilePath.get_file_type(file_string="testtxt"))
 
-    @patch("general_filemanager.path.os")
-    @patch("general_filemanager.path.FilePath.__init__")
+    @patch("monolith_filemanager.path.os")
+    @patch("monolith_filemanager.path.FilePath.__init__")
     def test_root_exists(self, mock_init, mock_os):
         mock_init.return_value = None
         test = FilePath("test")
@@ -36,8 +36,8 @@ class TestFilePath(TestCase):
         self.assertEqual(mock_os.path.isdir.return_value, out_come)
         mock_os.path.isdir.assert_called_once_with(test.root)
 
-    @patch("general_filemanager.path.os")
-    @patch("general_filemanager.path.FilePath.__init__")
+    @patch("monolith_filemanager.path.os")
+    @patch("monolith_filemanager.path.FilePath.__init__")
     def test_file_exists(self, mock_init, mock_os):
         mock_init.return_value = None
         test = FilePath("this/is/a/path.txt")

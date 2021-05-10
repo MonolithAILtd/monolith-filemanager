@@ -1,19 +1,19 @@
 from unittest import TestCase, main
 from unittest.mock import patch
 
-from general_filemanager.file.protobuf_file import ProtobufFile
+from monolith_filemanager.file.protobuf_file import ProtobufFile
 
 
 class TestProtobufFile(TestCase):
 
-    @patch("general_filemanager.file.protobuf_file.File.__init__")
+    @patch("monolith_filemanager.file.protobuf_file.File.__init__")
     def test___init__(self, mock_file_init):
         ProtobufFile(path="test")
         mock_file_init.return_value = None
         mock_file_init.assert_called_once_with(path="test")
 
-    @patch("general_filemanager.file.protobuf_file.tf")
-    @patch("general_filemanager.file.protobuf_file.ProtobufFile.__init__")
+    @patch("monolith_filemanager.file.protobuf_file.tf")
+    @patch("monolith_filemanager.file.protobuf_file.ProtobufFile.__init__")
     def test_read_file(self, mock_init, mock_tf):
         mock_init.return_value = None
         test = ProtobufFile(path="test")
@@ -30,8 +30,8 @@ class TestProtobufFile(TestCase):
 
         mock_graph_def.ParseFromString.assert_called_once_with(mock_file.read.return_value)
 
-    @patch("general_filemanager.file.protobuf_file.tf")
-    @patch("general_filemanager.file.protobuf_file.ProtobufFile.__init__")
+    @patch("monolith_filemanager.file.protobuf_file.tf")
+    @patch("monolith_filemanager.file.protobuf_file.ProtobufFile.__init__")
     def test_write_file(self, mock_init, mock_tf):
         mock_init.return_value = None
         test = ProtobufFile(path="test")

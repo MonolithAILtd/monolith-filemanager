@@ -48,7 +48,7 @@ done by importing the factory that will select the right adapter based on the fi
 To use it do the following:
 
 ```python
-from general_filemanager import file_manager_factory
+from monolith_filemanager import file_manager_factory
 
 file = file_manager_factory(file_path="some/file.path.txt")
 
@@ -59,7 +59,7 @@ file.write_file(data=file_data)
 ### Custom Reading
 Some files require custom reading where the file is parsed line by line rather than converted entirely to another format. 
 To do this we can pass the function we need into the general file manager. 
-This avoids handling file paths and caching outside of the general file manager. 
+This avoids handling file paths and caching outside of the general file manager.
 
 ```python
 def example_read_function(filepath)
@@ -67,7 +67,7 @@ def example_read_function(filepath)
     ... read the file ... 
     return data
 
-from general_filemanager import file_manager_factory
+from monolith_filemanager import file_manager_factory
 
 file = file_manager_factory(file_path="some/file.path.txt")
 
@@ -79,7 +79,7 @@ If a file path refers to a directory, you can use `ls` to get all the direct sub
 A tuple of two lists are returned - the list of subdirectories, followed by the list of files.
 
 ```python
-from general_filemanager import file_manager_factory
+from monolith_filemanager import file_manager_factory
 
 folder = file_manager_factory(file_path="some/folder")
 
@@ -93,14 +93,14 @@ object so it can be directly imported. The ```FilePath``` object has the ability
 and if the file exists. To use it do the following:
 
 ```python
-from general_filemanager import FilePath
+from monolith_filemanager import FilePath
 
 path = FilePath("this/is/a/path.txt")
 ```
 To get documentation on the individual properties and functions simply call the help function:
 
 ```python
-from general_filemanager import FilePath
+from monolith_filemanager import FilePath
 
 help(FilePath)
 ```

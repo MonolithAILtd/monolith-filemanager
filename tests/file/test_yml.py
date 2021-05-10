@@ -1,19 +1,19 @@
 from unittest import TestCase, main
 from unittest.mock import patch
 
-from general_filemanager.file.yml_file import YmlFile, YamlFileError
+from monolith_filemanager.file.yml_file import YmlFile, YamlFileError
 
 
 class TestYmlFile(TestCase):
 
-    @patch("general_filemanager.file.yml_file.File.__init__")
+    @patch("monolith_filemanager.file.yml_file.File.__init__")
     def test___init__(self, mock_file):
         YmlFile(path="test")
         mock_file.assert_called_once_with(path="test")
 
-    @patch("general_filemanager.file.yml_file.open")
-    @patch("general_filemanager.file.yml_file.yaml")
-    @patch("general_filemanager.file.yml_file.File.__init__")
+    @patch("monolith_filemanager.file.yml_file.open")
+    @patch("monolith_filemanager.file.yml_file.yaml")
+    @patch("monolith_filemanager.file.yml_file.File.__init__")
     def test_read(self, mock_file, mock_yaml, mock_open):
         mock_file.return_value = None
         test = YmlFile(path="test")
@@ -25,9 +25,9 @@ class TestYmlFile(TestCase):
         mock_yaml.load.assert_called_once_with(mock_open.return_value, Loader=mock_yaml.FullLoader)
         self.assertEqual(mock_yaml.load.return_value, out_come)
 
-    @patch("general_filemanager.file.yml_file.open")
-    @patch("general_filemanager.file.yml_file.yaml")
-    @patch("general_filemanager.file.yml_file.File.__init__")
+    @patch("monolith_filemanager.file.yml_file.open")
+    @patch("monolith_filemanager.file.yml_file.yaml")
+    @patch("monolith_filemanager.file.yml_file.File.__init__")
     def test_write(self, mock_file, mock_yaml, mock_open):
         mock_file.return_value = None
         test = YmlFile(path="test")

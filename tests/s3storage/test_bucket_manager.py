@@ -1,6 +1,6 @@
 from unittest import TestCase, main
 from unittest.mock import MagicMock, patch
-from general_filemanager.s3storage.bucket_manager import BucketManager
+from monolith_filemanager.s3storage.bucket_manager import BucketManager
 
 
 class TestBucketManager(TestCase):
@@ -34,7 +34,7 @@ class TestBucketManager(TestCase):
         self.assertEqual(mocked_bucket_two, test.buckets[mocked_bucket_two.meta.data['Name']])
         self.assertEqual(mocked_bucket, test.buckets[mocked_bucket.meta.data['Name']])
 
-    @patch("general_filemanager.s3storage.bucket_manager.BucketManager._check_bucket_cache")
+    @patch("monolith_filemanager.s3storage.bucket_manager.BucketManager._check_bucket_cache")
     def test_get_bucket(self, mock_check):
         test = BucketManager()
         test.buckets = {"test one": 1}

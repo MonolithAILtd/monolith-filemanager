@@ -15,13 +15,14 @@ in order for the file manager to access it. To register it, import it in the fol
         :return: None
         """
         if self.bindings_imported is False:
-            from general_filemanager.file.pandas_file import PandasFile
+            from monolith_filemanager.file.pandas_file import PandasFile
             self.add_binding(file_object=PandasFile)
 
             self.bindings_imported = True
 ```
 
 Let say we add another, it would be like:
+
 ```python
     def init_bindings(self):
         """
@@ -30,9 +31,9 @@ Let say we add another, it would be like:
         :return: None
         """
         if self.bindings_imported is False:
-            from general_filemanager.file.pandas_file import PandasFile
+            from monolith_filemanager.file.pandas_file import PandasFile
             self.add_binding(file_object=PandasFile)
-            from general_filemanager.file.pickle_file import PickleFile
+            from monolith_filemanager.file.pickle_file import PickleFile
             self.add_binding(file_object=PickleFile)
 
             self.bindings_imported = True
