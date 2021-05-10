@@ -28,6 +28,8 @@ class FileMap(dict, metaclass=Singleton):
         :return: None
         """
         if self.bindings_imported is False:
+            from monolith_filemanager.file.gmsh_file import GmshFile
+            self.add_binding(file_object=GmshFile)
             from monolith_filemanager.file.hdf5_file import Hdf5File
             self.add_binding(file_object=Hdf5File)
             from monolith_filemanager.file.json_file import JSONFile
