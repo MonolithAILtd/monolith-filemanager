@@ -10,7 +10,7 @@ done by importing the factory that will select the right adapter based on the fi
 To use it do the following:
 
 ```python
-from monolith_filemanager import file_manager_factory
+from monolith_filemanager import file_manager
 
 file = file_manager(file_path="some/file.path.txt")
 
@@ -56,6 +56,90 @@ file = file_manager(file_path="some/file.path.txt")
 
 file_data = file.custom_read_file(example_read_function)
 ```
+### Custom Templates
+Custom templates can be built by building our own objects that inherit from our ```File``` object as demonstrated by the 
+code below:
+
+```python
+from typing import Any, Union
+
+from monolith_filemanager.file.base import File
+from monolith_filemanager.path import FilePath
+
+from adapters.file_manager_adapters.errors import PickleFileError
+
+
+class PickleFile(File):
+    """
+    This is a class for managing the reading and writing of pickled objects.
+    """
+    SUPPORTED_FORMATS = ["pickle"]
+
+    def __init__(self, path: Union[str, FilePath]) -> None:
+        """
+        The constructor for the PickleFile class.
+
+        :param path: (str/FilePath) path to the file
+        """
+        super().__init__(path=path)
+
+    def read(self, **kwargs) -> Any:
+        """
+        Gets data from file defined by the file path.
+
+        :return: (Any) Data from the pickle file
+        """
+        try:
+            from pickle_factory import base as pickle_factory
+        except ImportError:
+            raise PickleFileError(
+                "You are trying to read a legacy DPU object without the "
+                "pickle_factory plugin. You need the pickle_factory directory in your "
+                "PYTHONPATH")
+        raw_data = open(self.path, 'rb')
+        loaded_data = pickle_factory.load(file=raw_data)
+        raw_data.close()
+        return loaded_data
+
+    def write(self, data: Any) -> None:
+        """
+        Writes data to file.
+
+        :param data: (python object) data to be written to file
+        :return: None
+        """
+        try:
+            from pickle_factory import base as pickle_factory
+        except ImportError:
+            raise PickleFileError(
+                "You are trying to read a legacy DPU object without the "
+                "pickle_factory plugin. You need the pickle_factory directory in your "
+                "PYTHONPATH")
+        file = open(self.path, 'wb')
+        pickle_factory.dump(obj=data, file=file)
+```
+Here we can see that we need to accept a ```path``` parameter in the constructor, we also have to write our own read and 
+write functions. In the example here at monolith we have built our own ```pickle_factory``` for a certain platform so we 
+import and use this. We also have to note that there is a ```SUPPORTED_FORMATS```, this list can be as long as you want and 
+it's used for mapping the extensions. We have ```["pickle"]``` which means that all files with ```.pickle``` extensions 
+will use this object to read and write. if we had ```["pickle", "sav"]```, these functions would be used on files with extensions with either ```.pickle``` or ```.sav```. We can write our custom functions as if we're reading locally, because the module uses
+caching when downloading and uploading to s3. This means that the file is cached locally before being uploaded or read and then 
+the cache is deleted. This keeps maintaining code around reading and writing from s3 and local consistent and easy to maintain.
+
+Now that we have defined our custom file object, we just need to add it to the file map with the code below:
+
+```python
+from adapters.file_manager_adapters.pickle_file import PickleFile
+
+file_map: FileMap = FileMap()
+if file_map.get("pickle") is not None:
+    del file_map["pickle"]
+file_map.add_binding(file_object=PickleFile)
+```
+The ```FileMap``` is a dictionary and the key is the extension. If we try and add duplicate extensions then the ```add_binding```
+function will raise an error. The map is also a Singleton, therefore it's a single point of truth in the application that you 
+are building. 
+
 
 ### List Directory
 If a file path refers to a directory, you can use `ls` to get all the direct subdirectories and files in that directory.
@@ -102,7 +186,6 @@ The module supports the following extensions:
 - joblib
 - mat
 - npy
-- pickle
 - parquet
 - vtk
 - yml

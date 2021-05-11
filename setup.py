@@ -31,7 +31,7 @@ setuptools.setup(
     description="Python package for reading and writing files",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/MonolithAILtd/general_filemanager",
+    url="https://github.com/MonolithAILtd/monolith-filemanager",
     install_requires=[
         "absl-py==0.10.0",
         "appdirs==1.4.3",

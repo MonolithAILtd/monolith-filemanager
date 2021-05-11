@@ -40,8 +40,6 @@ class FileMap(dict, metaclass=Singleton):
             self.add_binding(file_object=NumpyFile)
             from monolith_filemanager.file.pandas_file import PandasFile
             self.add_binding(file_object=PandasFile)
-            from monolith_filemanager.file.pickle_file import PickleFile
-            self.add_binding(file_object=PickleFile)
             from monolith_filemanager.file.standard_pickle_file import StandardPickleFile
             self.add_binding(file_object=StandardPickleFile)
             from monolith_filemanager.file.vtk_file import VtkFile
