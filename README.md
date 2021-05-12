@@ -93,7 +93,7 @@ class PickleFile(File):
             from pickle_factory import base as pickle_factory
         except ImportError:
             raise PickleFileError(
-                "You are trying to read a legacy DPU object without the "
+                "You are trying to read a legacy object without the "
                 "pickle_factory plugin. You need the pickle_factory directory in your "
                 "PYTHONPATH")
         raw_data = open(self.path, 'rb')
@@ -112,7 +112,7 @@ class PickleFile(File):
             from pickle_factory import base as pickle_factory
         except ImportError:
             raise PickleFileError(
-                "You are trying to read a legacy DPU object without the "
+                "You are trying to read a legacy object without the "
                 "pickle_factory plugin. You need the pickle_factory directory in your "
                 "PYTHONPATH")
         file = open(self.path, 'wb')
@@ -129,7 +129,7 @@ the cache is deleted. This keeps maintaining code around reading and writing fro
 Now that we have defined our custom file object, we just need to add it to the file map with the code below:
 
 ```python
-from adapters.file_manager_adapters.pickle_file import PickleFile
+from some.path import PickleFile
 
 file_map: FileMap = FileMap()
 if file_map.get("pickle") is not None:

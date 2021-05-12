@@ -25,7 +25,7 @@ directives = {
 
 setuptools.setup(
     name="monolith_filemanager",
-    version="0.0.2",
+    version="0.0.3",
     author="Maxwell Flitton",
     author_email="maxwell@gmail.com",
     description="Python package for reading and writing files",
