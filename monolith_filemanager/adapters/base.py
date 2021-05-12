@@ -82,6 +82,10 @@ class Base(ABC):
         pass
 
     @abstractmethod
+    def delete_folder(self, path=None) -> None:
+        pass
+
+    @abstractmethod
     def write_stream(self, stream) -> None:
         pass
 

@@ -102,6 +102,16 @@ class FileManager:
         bucket = self.resource.Bucket(bucket_name)
         bucket.objects.filter(Prefix=file_name).delete()
 
+    def delete_folder(self, bucket_name: str, file_name: str) -> None:
+        """
+        Deletes file from bucket.
+
+        :param bucket_name: (str) name of bucket for file
+        :param file_name: (str) name of file being deleted
+        :return: None
+        """
+        self.delete_file(bucket_name=bucket_name, file_name=f"{file_name}/")
+
     def file_exists(self, bucket_name, file_name) -> bool:
         """
         Check if file exists in a bucket.
