@@ -106,18 +106,6 @@ class Base(ABC):
     def copy_folder(self, new_folder: str) -> None:
         pass
 
-    @staticmethod
-    def check_name_taken(name: str, existing_names: List[str]) -> bool:
-        """
-        Checks if a name string is in a list of strings.
-        :param name: (str) file or folder name
-        :param existing_names: (List[str]) list of strings to check
-        """
-        if name in existing_names:
-            return True
-        else:
-            return False
-
     def batch_delete(self, paths: List[str]) -> None:
         """
         Batch delete files or folders within the parent directory of self.path.
@@ -126,7 +114,7 @@ class Base(ABC):
         :return: None
         """
         for path in paths:
-            del_path = FilePath(f"{self.path}{path}")
+            del_path = FilePath(f"{self.path}/{path}")
             self.delete_file(path=del_path)
 
     @abstractmethod
@@ -135,4 +123,12 @@ class Base(ABC):
 
     @abstractmethod
     def rename_folder(self, new_name: str) -> None:
+        pass
+
+    @abstractmethod
+    def move_file(self, destination_folder: str) -> None:
+        pass
+
+    @abstractmethod
+    def move_folder(self, destination_folder: str) -> None:
         pass

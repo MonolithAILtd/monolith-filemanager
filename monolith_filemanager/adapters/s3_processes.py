@@ -101,7 +101,7 @@ class S3ProcessesAdapter(Base):
             '1) pip install the Monolith caching module;\n'
             '2) Create file objects passing an instance of `caching.CacheManager()` to `file_manager` method;\n'
             'For example:'
-            '`file = monolith_filemanager.file_manager(file_path=file_path, caching=caching.CacheManager())`'
+            '`file = general_filemanager.file_manager(file_path=file_path, caching=caching.CacheManager())`'
         )
 
     def write_file(self, data: Any) -> None:
@@ -131,15 +131,29 @@ class S3ProcessesAdapter(Base):
         """
         self._engine.upload_data(storage_path=self.path.to_string(), data=data)
 
-    def delete_file(self, path=None) -> None:
+    def delete_file(self, path: Optional[FilePath] = None) -> None:
         """
-        Deletes data from s3 bucket.
+        Deletes file data from s3 bucket.
 
+        :param path: (Optional[FilePath]) if None, defaults to self.path
         :return: None
         """
         if not path:
             path = self.path
         self._engine.delete(storage_path=path)
+
+    def delete_folder(self, path: Optional[FilePath] = None) -> None:
+        """
+        Deletes "folder" and contents from s3 bucket.
+
+        :param path: (Optional[FilePath]) if None, defaults to self.path
+        :return: None
+        """
+        if not path:
+            path = self.path
+        bucket, folder_name, short_file_name = V1Engine._split_s3_path(storage_path=path)
+        # ensure folder names being passed as s3 "Prefix" args are terminated with a "/"
+        self._engine.delete_file(bucket_name=bucket, file_name=f"{folder_name}/")
 
     def write_stream(self, stream: Any) -> str:
         """
@@ -156,7 +170,7 @@ class S3ProcessesAdapter(Base):
         self._cache.create_cache()
         file_name = self.path.split("/")[-1]
         file_path = self._cache.cache_path + file_name
-        parent_dir = "/".join(self.path.split("/")[:-1]) + "/"
+        parent_dir = FilePath("/".join(self.path.split("/")[:-1]) + "/")
         stream.save(file_path)
         files, dirs = self.ls(path=parent_dir)
         if self.check_name_taken(file_name, dirs):
@@ -178,21 +192,20 @@ class S3ProcessesAdapter(Base):
         prefix = "/".join(self.path.split("/")[:-1])
         ext = f".{self.path.split('.')[-1]}"
         file = ".".join(self.path.split("/")[-1].split(".")[:-1])
-        new_file = prefix + "/" + file + f" {count}{ext}"
-        while self.exists(new_file):
+        new_file = FilePath(prefix + "/" + file + f" {count}{ext}")
+        while self.exists(path=new_file):
             count += 1
-            new_file = prefix + "/" + file + f" {count}{ext}"
+            new_file = FilePath(prefix + "/" + file + f" {count}{ext}")
         self.path = new_file
 
-    def create_directory_if_not_exists(self, increment: bool = False) -> str:
+    def create_directory_if_not_exists(self) -> str:
         """
         Creates a directory if it does not exist.
-        :param increment: (bool) Must implement param for interface, unused
         :return: (str) returns name of newly created folder
         """
         return self._engine.create_folder(storage_path=self.path)
 
-    def exists(self, path=None) -> bool:
+    def exists(self, path: Optional[FilePath] = None) -> bool:
         """
         Checks to see if the self.path exists.
 
@@ -203,7 +216,7 @@ class S3ProcessesAdapter(Base):
         else:
             return self._engine.exists(storage_path=self.path)
 
-    def ls(self, path: Optional[str] = None) -> Tuple[dict, List[str]]:
+    def ls(self, path: Optional[FilePath] = None) -> Tuple[dict, List[str]]:
         """
         Lists all the sub directories and sub files belonging to the self.path.
 
@@ -241,6 +254,19 @@ class S3ProcessesAdapter(Base):
         return [posixpath.join("./", posixpath.relpath(self._clean_name(file), base_prefix)) for file in all_files if
                 self._glob_match(file_pattern, self._clean_name(file))]
 
+    def copy_file(self, new_path: FilePath) -> None:
+        """
+        Copies self.path file to a new file path.
+
+        :param new_path: (FilePath) destination path for file to be copied to
+        :return: None
+        """
+        old_bucket_name, old_file_name, _ = self._engine._split_s3_path(self.path)
+        new_bucket_name, new_file_name, _ = self._engine._split_s3_path(new_path)
+
+        self._engine.resource.Object(old_bucket_name, new_file_name).copy_from(
+            CopySource=f"{old_bucket_name}/{old_file_name}")
+
     def copy_folder(self, new_folder: str) -> None:
         """
         Copies one folder to another folder.
@@ -254,7 +280,7 @@ class S3ProcessesAdapter(Base):
         old_bucket = self._engine.resource.Bucket(old_bucket_name)
         new_bucket = self._engine.resource.Bucket(new_bucket_name)
 
-        for obj in old_bucket.objects.filter(Prefix=old_folder_name):
+        for obj in old_bucket.objects.filter(Prefix=f"{old_folder_name}/"):
             old_source = {'Bucket': old_bucket_name,
                           'Key': obj.key}
 
@@ -302,10 +328,8 @@ class S3ProcessesAdapter(Base):
         :raises: (S3ProcessesAdapterError) if file does not exist or new name is taken
         """
         ext = f".{self.path.split('.')[-1]}"
-        new_path = "/".join(self.path.split("/")[:-1]) + f"/{new_name}" + ext
-        old_bucket_name, old_file_name, _ = self._engine._split_s3_path(self.path)
-        new_bucket_name, new_file_name, _ = self._engine._split_s3_path(new_path)
-        parent_dir = "/".join(self.path.split("/")[:-1]) + "/"
+        new_path = FilePath("/".join(self.path.split("/")[:-1]) + f"/{new_name}" + ext)
+        parent_dir = FilePath("/".join(self.path.split("/")[:-1]) + "/")
 
         files, dirs = self.ls(path=parent_dir)
         if not self.exists():
@@ -313,9 +337,8 @@ class S3ProcessesAdapter(Base):
         if self.check_name_taken(name=new_name, existing_names=[files for files in files.keys()] + dirs):
             raise S3ProcessesAdapterError("New file name already taken by a file or directory in this folder")
 
-        self._engine.resource.Object(old_bucket_name, new_file_name).copy_from(CopySource=f"{old_bucket_name}/{old_file_name}")
-
-        self._engine.resource.Object(old_bucket_name, old_file_name).delete()
+        self.copy_file(new_path=new_path)
+        self.delete_file()
 
     def rename_folder(self, new_name: str) -> None:
         """
@@ -326,13 +349,79 @@ class S3ProcessesAdapter(Base):
         :return: None
         :raises: (S3ProcessesAdapterError) if folder does not exist or new name is taken
         """
-        new_path = "/".join(self.path.split("/")[:-1]) + f"/{new_name}"
-        parent_dir = "/".join(self.path.split("/")[:-1]) + "/"
+        new_path = FilePath("/".join(self.path.split("/")[:-1]) + f"/{new_name}")
 
-        files, dirs = self.ls(path=parent_dir)
-        if self.check_name_taken(name=new_name, existing_names=[files for files in files.keys()] + dirs):
+        if self.exists(path=new_path):
             raise S3ProcessesAdapterError("New folder name already taken by a file or directory in this folder")
 
         self.copy_folder(new_folder=new_path)
 
+        self.delete_folder()
+
+    def move_file(self, destination_folder: str) -> None:
+        """
+        Checks new file path not already taken.
+        Copies file object to new location/name within bucket and then deletes old object.
+
+        :param destination_folder: (str) folder file is to be moved to
+        :return: None
+        :raises: (S3ProcessesAdapterError) if destination filepath already exists
+        """
+        file = self.path.split("/")[-1]
+        new_path = FilePath(f"{destination_folder}/{file}")
+        if self.exists(path=new_path):
+            S3ProcessesAdapterError("File with same name already exists in destination folder")
+
+        self.copy_file(new_path=new_path)
         self.delete_file()
+
+    def move_folder(self, destination_folder: str) -> None:
+        """
+        Checks new folder path not already taken.
+        Copies folder object and contents to new location/name within bucket and then deletes old folder.
+
+        :param destination_folder: (str) folder to be moved to
+        :return: None
+        :raises: (S3ProcessesAdapterError) if destination filepath already exists
+        """
+        folder = self.path.split("/")[-1]
+        new_path = FilePath(f"{destination_folder}/{folder}")
+
+        if self.exists(path=new_path):
+            S3ProcessesAdapterError("File/Folder with same name already exists in folder")
+
+        self.copy_folder(new_folder=new_path)
+
+        self.delete_folder()
+
+    def batch_move(self, paths: List[str], destination_folder: str) -> None:
+        """
+        Iterates through list of paths within the self.path directory, ascertains if file or folder, then calls
+        appropriate move method.
+
+        :param paths: (List[str]) file and folder paths to be moved
+        :param destination_folder: (str) folder path to be moved to
+        :return: None
+        """
+        origin_folder = self.path
+        for path in paths:
+            dest_path = FilePath(f"{destination_folder}/{path}")
+            if dest_path.get_file_type(dest_path.to_string()) is not None:
+                self.path = f"{self.path}/{path}"
+                self.move_file(destination_folder=dest_path)
+            else:
+                self.path = f"{self.path}/{path}"
+                self.move_folder(destination_folder=dest_path)
+            self.path = origin_folder
+
+    @staticmethod
+    def check_name_taken(name: str, existing_names: List[str]) -> bool:
+        """
+        Checks if a name string is in a list of strings.
+        :param name: (str) file or folder name
+        :param existing_names: (List[str]) list of strings to check
+        """
+        if name in existing_names:
+            return True
+        else:
+            return False
