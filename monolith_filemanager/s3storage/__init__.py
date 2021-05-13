@@ -114,15 +114,19 @@ class V1Engine(BucketManager, FileManager):
         self.download_file_to_disk(bucket_name=bucket, file_name=file_name, file_path=output_path)
         return output_path
 
-    def delete(self, storage_path: Union[FilePath, str]) -> None:
+    def delete(self, storage_path: Union[FilePath, str], folder=False) -> None:
         """
         Deletes the file from s3 or folder and file contents from s3.
 
         :param storage_path: (str) storage path in the s3 storage space
+        :param folder: (bool)
         :return: None
         """
         bucket, file_name, short_file_name = V1Engine._split_s3_path(storage_path)
-        self.delete_file(bucket_name=bucket, file_name=file_name)
+        if not folder:
+            self.delete_file(bucket_name=bucket, file_name=file_name)
+        else:
+            self.delete_folder(bucket_name=bucket, file_name=file_name)
 
     def exists(self, storage_path: Union[FilePath, str]) -> bool:
         """
@@ -158,4 +162,3 @@ class V1Engine(BucketManager, FileManager):
         file_name = "/".join(path[1:])
         short_file_name = path[-1]
         return bucket_name, file_name, short_file_name
-

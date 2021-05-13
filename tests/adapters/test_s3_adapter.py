@@ -146,6 +146,16 @@ class TestS3ProcessesAdapter(TestCase):
 
         test._engine.delete.assert_called_once_with(storage_path=test.path)
 
+    @patch("monolith_filemanager.adapters.s3_processes.V1Engine._split_s3_path")
+    def test_delete_folder(self, mock_split_path):
+        mock_engine = MagicMock()
+        mock_engine.delete_file.return_value = None
+        self.test_folder._engine = mock_engine
+        mock_split_path.return_value = ("mock-bucket", "mock/folder", "folder")
+
+        self.test_folder.delete_folder()
+        mock_engine.delete_file.assert_called_once_with(bucket_name="mock-bucket", file_name="mock/folder/")
+
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.increment_files")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
@@ -246,48 +256,108 @@ class TestS3ProcessesAdapter(TestCase):
         test.batch_delete(paths=mock_paths)
         mock_delete_file.assert_has_calls = [call(path=test.path + mock_paths[0]),
                                              call(path=test.path + mock_paths[1])]
+
+    def test_copy_file(self):
+        mock_new_path = "mock/new/path"
+        mock_engine = MagicMock()
+        mock_engine._split_s3_path.side_effect = [("mock-bucket", "old/file.txt", None),
+                                                  ("mock-bucket", "new/file.txt", None)]
+        mockObject = MagicMock()
+        mockObject.copy_from.return_value = None
+        mock_engine.resource.Object.return_value = mockObject
+
+        self.test_file._engine = mock_engine
+        self.test_file.copy_file(mock_new_path)
+        mock_engine._split_s3_path.assert_has_calls = [call(self.test_file.path), call(mock_new_path)]
+        mockObject.copy_from.assert_called_once_with(CopySource="mock-bucket/old/file.txt")
+
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.copy_file")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
-    def test_rename_file(self, mock_ls, mock_exists, mock_check_name_taken):
+    @patch("monolith_filemanager.adapters.s3_processes.FilePath")
+    def test_rename_file(self, mock_filepath, mock_ls, mock_exists, mock_check_name_taken, mock_copy_file,
+                         mock_delete_file):
         new_name = "new_name"
+        mock_ext = ".xlsx"
+        mock_filepath.side_effect = ["/".join(self.test_file.path.split("/")[:-1]) + f"/{new_name}" + mock_ext,
+                                      "/".join(self.test_file.path.split("/")[:-1]) + "/"]
         mock_ls.return_value = ({}, [])
         mock_exists.return_value = True
         mock_check_name_taken.return_value = False
 
-        mock_Object = MagicMock()
-        mock_Object.copy_from.return_value = None
-        mock_Object.delete.return_value = None
-
-        mock_engine = MagicMock()
-        mock_engine._split_s3_path.side_effect = []
-        mock_engine.resource.Object.return_value = mock_Object
-
-        mock_engine._split_s3_path.side_effect = [("mock_bucket", self.test_file.path, None),
-                                                  ("mock_bucket", f"mock/folder/{new_name}.xlsx", None)]
-        self.test_file._engine = mock_engine
+        mock_copy_file.return_value = None
+        mock_delete_file.return_value = None
 
         self.test_file.rename_file(new_name=new_name)
         mock_ls.assert_called_once_with(path="mock/folder/")
-        mock_Object.copy_from.assert_called_once_with(CopySource=f"mock_bucket/{self.test_file.path}")
-        mock_Object.delete.assert_called_once_with()
-        mock_engine._split_s3_path.assert_has_calls = [call(self.test_file.path), call(f"mock/folder/{new_name}.xlsx")]
+        mock_copy_file.assert_called_once_with(new_path='mock/folder/new_name.xlsx')
+        mock_delete_file.assert_called_once_with()
 
-    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_folder")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.copy_folder")
-    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.check_name_taken")
-    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.ls")
-    def test_rename_folder(self, mock_ls, mock_check_name_taken, mock_copy_folder, mock_delete_file):
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.s3_processes.FilePath")
+    def test_rename_folder(self, mock_filepath, mock_exists, mock_copy_folder, mock_delete_folder):
         new_name = "new_folder"
-        mock_ls.return_value = ({}, [])
-        mock_check_name_taken.return_value = False
+        mock_filepath.return_value = "/".join(self.test_folder.path.split("/")[:-1]) + f"/{new_name}"
+        mock_exists.return_value = False
         mock_copy_folder.return_value = None
-        mock_delete_file.return_value = None
+        mock_delete_folder.return_value = None
         self.test_folder.rename_folder(new_name=new_name)
 
-        mock_ls.assert_called_once_with(path="mock/folder/")
         mock_copy_folder.assert_called_once_with(new_folder=f"mock/folder/{new_name}")
+        mock_delete_folder.assert_called_once_with()
+
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.copy_file")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.s3_processes.FilePath")
+    def test_move_file(self, mock_filepath, mock_exists, mock_copy_file, mock_delete_file):
+        mock_destination_folder = "mock/new/path"
+        mock_filepath.return_value = "mock/new/path/file.txt"
+        mock_exists.return_value = False
+
+        self.test_file.move_file(destination_folder=mock_destination_folder)
+        mock_copy_file.assert_called_once_with(new_path=mock_filepath.return_value)
         mock_delete_file.assert_called_once_with()
+
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_folder")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.copy_folder")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.exists")
+    @patch("monolith_filemanager.adapters.s3_processes.FilePath")
+    def test_move_folder(self, mock_filepath, mock_exists, mock_copy_folder, mock_delete_folder):
+        mock_destination_folder = "mock/new/path"
+        mock_filepath.return_value = "mock/new/path/folder"
+        mock_exists.return_value = False
+
+        self.test_folder.move_folder(destination_folder=mock_destination_folder)
+        mock_copy_folder.assert_called_once_with(new_folder=mock_filepath.return_value)
+        mock_delete_folder.assert_called_once_with()
+
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.move_folder")
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.move_file")
+    @patch("monolith_filemanager.adapters.s3_processes.FilePath")
+    def test_batch_move(self, mock_filepath, mock_move_file, mock_move_folder):
+        mock_paths = ["test.xlsx", "test_folder"]
+        mock_destination_folder = "mock/destination/folder"
+        mock_filepath1 = MagicMock()
+        mock_filepath1.to_string.return_value = f"{mock_destination_folder}/{mock_paths[0]}"
+        mock_filepath1.get_file_type.return_value = "xlsx"
+        mock_filepath2 = MagicMock()
+        mock_filepath2.to_string.return_value = f"{mock_destination_folder}/{mock_paths[1]}"
+        mock_filepath2.get_file_type.return_value = None
+        mock_filepath.side_effect = [mock_filepath1, mock_filepath2]
+
+        mock_move_file.return_value = None
+        mock_move_folder.return_value = None
+
+        self.test_folder.batch_move(paths=mock_paths, destination_folder=mock_destination_folder)
+        mock_filepath.assert_has_calls([call(f"{mock_destination_folder}/{mock_paths[0]}"),
+                                        call(f"{mock_destination_folder}/{mock_paths[1]}")])
+        mock_move_file.assert_called_once_with(destination_folder=mock_filepath1)
+        mock_move_folder.assert_called_once_with(destination_folder=mock_filepath2)
 
 
 if __name__ == "__main__":

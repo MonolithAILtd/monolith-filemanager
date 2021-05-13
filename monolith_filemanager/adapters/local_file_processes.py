@@ -98,7 +98,7 @@ class LocalFileProcessesAdapter(Base):
         :param data: data to be written to file
         :return: None
         """
-        self.create_directory_if_not_exists()
+        self._create_directory_if_not_exists()
         self.local_file_object().write(data=data)
 
     def write_raw_file(self, data):
@@ -108,14 +108,15 @@ class LocalFileProcessesAdapter(Base):
         :param data: data to be written to file
         :return: None
         """
-        self.create_directory_if_not_exists()
+        self._create_directory_if_not_exists()
         with open(self.path, "wb") as f:
             f.write(data)
 
-    def delete_file(self, path=None):
+    def delete_file(self, path: Optional[FilePath] = None) -> None:
         """
         Deletes local file.
 
+        :param path: (Optional[FilePath])
         :return: None
         """
         if not path:
@@ -126,7 +127,18 @@ class LocalFileProcessesAdapter(Base):
         elif os.path.isfile(path):
             os.remove(path)
         else:
-            raise FileManagerError("Could not delete folder at path: " + self.path)
+            raise FileManagerError("Could not delete file/folder at path: " + path)
+
+    def delete_folder(self, path: Optional[FilePath] = None) -> None:
+        """
+        Calls delete file method which also deletes directories.
+
+        :param path: (Optional[FilePath])
+        :return: None
+        """
+        if not path:
+            path = self.path
+        self.delete_file(path=path)
 
     def write_stream(self, stream) -> str:
         """
@@ -136,15 +148,12 @@ class LocalFileProcessesAdapter(Base):
         :return: (str) Name file saved as
         :raises: (LocalProcessesAdapterError) if new file name taken by existing folder
         """
-        dirname = os.path.dirname(self.path)
-        file_name = self.path.split("/")[-1]
-        _, dirs, _ = next(os.walk(dirname))
-        if self.check_name_taken(name=file_name, existing_names=dirs):
+        if os.path.isdir(self.path):
             raise LocalProcessesAdapterError("New file name already taken by folder in this folder")
-        if self.exists():
+        elif os.path.isfile(path=self.path):
             self.increment_files()
 
-        self.create_directory_if_not_exists()
+        self._create_directory_if_not_exists()
         stream.save(self.path)
         file_name = self.path.split("/")[-1]
         return file_name
@@ -165,32 +174,37 @@ class LocalFileProcessesAdapter(Base):
             new_file = prefix + "/" + file + f" {count}{ext}"
         self.path = new_file
 
-    def create_directory_if_not_exists(self, increment: bool = False) -> str:
+    def _create_directory_if_not_exists(self) -> None:
         """
-        Creates a directory if it does not exist.
-        :param increment: (bool) Switch for whether or not to increment file names, only use when creating only folder, no file
+        Creates a directory if it does not exist. Used privately in adapter.
+        :return: None
+        """
+        dirname = os.path.dirname(self.path)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+
+    def create_directory_if_not_exists(self) -> str:
+        """
+        Public method to explicitly create a directory (if it does not exist) when passed a filepath.
         :return: (str) new folder name
         :raises: (LocalProcessesAdapterError) If new folder name already taken by file in directory
         """
-        dirname = os.path.dirname(self.path)
+        dirname = FilePath(os.path.dirname(self.path))
         folder = dirname.split("/")[-1]
-        pardir = os.path.dirname(dirname)
-        _, _, files = next(os.walk(pardir))
-        if self.check_name_taken(name=folder, existing_names=files):
+
+        if os.path.isfile(path=dirname):
             raise LocalProcessesAdapterError("New folder name already taken by file in this folder")
-        if not os.path.exists(dirname):
-            os.makedirs(dirname)
+        elif os.path.isdir(dirname):
+            folder = self.increment_folders(dirname=dirname)
         else:
-            # handle duplicate
-            if increment:
-                folder = self.increment_folders(dirname=dirname)
+            os.makedirs(dirname)
         return folder
 
     @staticmethod
-    def increment_folders(dirname: str) -> str:
+    def increment_folders(dirname: FilePath) -> str:
         """
         Increment folder name suffix if name prefix already exists within parent directory.
-        :param dirname: (str) folder/directory name to increment
+        :param dirname: (FilePath) folder/directory name to increment
         :return: (str) new folder name
         """
         count = 2
@@ -203,13 +217,16 @@ class LocalFileProcessesAdapter(Base):
         os.makedirs(new_folder)
         return new_folder.split("/")[-1]
 
-    def exists(self) -> bool:
+    def exists(self, path: Optional[FilePath] = None) -> bool:
         """
         Checks to see if the self.path exists
 
+        :param path: (Optional[FilePath]) if not passed, defaults to self.path
         :return: (bool) True if exists, False if not
         """
-        return os.path.exists(self.path)
+        if not path:
+            path = self.path
+        return os.path.exists(path)
 
     def ls(self) -> Tuple[dict, List[str]]:
         """
@@ -268,13 +285,11 @@ class LocalFileProcessesAdapter(Base):
         :return: None
         :raises: (LocalProcessesAdapterError) if file doesn't exist or name already taken
         """
-        pardir = os.path.dirname(self.path)
         ext = os.path.splitext(self.path)[-1]
-        new_path = "/".join(self.path.split("/")[:-1]) + f"/{new_name}" + ext
-        _, dirs, files = next(os.walk(pardir))
+        new_path = FilePath("/".join(self.path.split("/")[:-1]) + f"/{new_name}" + ext)
         if not self.exists():
             raise LocalProcessesAdapterError("File does not exist to rename")
-        if self.check_name_taken(name=new_name, existing_names=files + dirs):
+        if self.exists(path=new_path):
             raise LocalProcessesAdapterError("New file name already taken by a file or directory in this folder")
 
         os.rename(self.path, new_path)
@@ -287,12 +302,64 @@ class LocalFileProcessesAdapter(Base):
         :return: None
         :raises: (LocalProcessesAdapterError) if folder does not exist or new name is taken
         """
-        pardir = os.path.dirname(self.path)
-        new_path = "/".join(self.path.split("/")[:-1]) + f"/{new_name}"
-        _, dirs, files = next(os.walk(pardir))
+        new_path = FilePath("/".join(self.path.split("/")[:-1]) + f"/{new_name}")
         if not self.exists():
             raise LocalProcessesAdapterError("Folder does not exist to rename")
-        if self.check_name_taken(name=new_name, existing_names=files + dirs):
-            raise LocalProcessesAdapterError("New folder name already taken by a file or directory in this folder")
+        if self.exists(path=new_path):
+            raise LocalProcessesAdapterError("New file name already taken by a file or directory in this folder")
 
         os.rename(self.path, new_path)
+
+    def _move(self, new_path: FilePath) -> None:
+        """
+        Private method shared by both move_file and move_folder methods.
+        :param new_path: (FilePath) new path to move self.path to
+        :return: None
+        :raises: (LocalProcessesAdapterError) if new path name already taken
+        """
+        if self.exists(path=new_path):
+            raise LocalProcessesAdapterError("File/Folder name already taken by a file or directory in this folder")
+        os.rename(self.path, new_path)
+
+    def move_file(self, destination_folder: str) -> None:
+        """
+        Public move file method which formats new_path and calls _move.
+
+        :param destination_folder: (str) folder self.path file to be moved to
+        :return: None
+        """
+        file = self.path.split("/")[-1]
+        new_path = FilePath(f"{destination_folder}/{file}")
+        self._move(new_path=new_path)
+
+    def move_folder(self, destination_folder: str) -> None:
+        """
+        Public move folder method which formats new_path and calls _move.
+
+        :param destination_folder: (str) folder self.path folder to be moved to
+        :return: None
+        """
+        folder = self.path.split("/")[-1]
+        new_path = FilePath(f"{destination_folder}/{folder}")
+        self._move(new_path=new_path)
+
+    def batch_move(self, paths: List[str], destination_folder: str) -> None:
+        """
+        Iterates through list of paths within the self.path directory, ascertains if file or folder, then calls
+        appropriate move method.
+
+        :param paths: (List[str]) file and folder paths to be moved
+        :param destination_folder: (str) folder path to be moved to
+        :return: None
+        """
+        origin_folder = self.path
+        for path in paths:
+            existing_path = FilePath(f"{self.path}/{path}")
+            if os.path.isfile(existing_path):
+                self.path = f"{self.path}/{path}"
+                self.move_file(destination_folder=destination_folder)
+            # elif os.path.isdir(existing_path):
+            else:
+                self.path = f"{self.path}/{path}"
+                self.move_folder(destination_folder=destination_folder)
+            self.path = origin_folder
