@@ -356,8 +356,8 @@ class TestS3ProcessesAdapter(TestCase):
         self.test_folder.batch_move(paths=mock_paths, destination_folder=mock_destination_folder)
         mock_filepath.assert_has_calls([call(f"{mock_destination_folder}/{mock_paths[0]}"),
                                         call(f"{mock_destination_folder}/{mock_paths[1]}")])
-        mock_move_file.assert_called_once_with(destination_folder=mock_filepath1)
-        mock_move_folder.assert_called_once_with(destination_folder=mock_filepath2)
+        mock_move_file.assert_called_once_with(destination_folder=mock_destination_folder)
+        mock_move_folder.assert_called_once_with(destination_folder=mock_destination_folder)
 
 
 if __name__ == "__main__":

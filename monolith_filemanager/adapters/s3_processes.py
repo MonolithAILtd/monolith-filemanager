@@ -408,10 +408,10 @@ class S3ProcessesAdapter(Base):
             dest_path = FilePath(f"{destination_folder}/{path}")
             if dest_path.get_file_type(dest_path.to_string()) is not None:
                 self.path = f"{self.path}/{path}"
-                self.move_file(destination_folder=dest_path)
+                self.move_file(destination_folder=destination_folder)
             else:
                 self.path = f"{self.path}/{path}"
-                self.move_folder(destination_folder=dest_path)
+                self.move_folder(destination_folder=destination_folder)
             self.path = origin_folder
 
     @staticmethod
