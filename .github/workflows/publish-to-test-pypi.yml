@@ -21,4 +21,4 @@ jobs:
       - name: run tests
         run: python -m unittest discover ./tests
       - name: update version
-        run: python refactor_requirements.py
+        run: python get_latest_version.py
