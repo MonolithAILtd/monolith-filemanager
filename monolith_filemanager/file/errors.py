@@ -64,3 +64,15 @@ class MatlabFileError(Exception):
 
     def __init__(self, message: str) -> None:
         super().__init__(message)
+
+
+class KerasModelFileError(Exception):
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class ProtobufFileError(Exception):
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)

@@ -12,7 +12,7 @@ class TestKerasModelFile(TestCase):
         KerasModelFile(path="test")
         mock_file_init.assert_called_once_with(path="test")
 
-    @patch("monolith_filemanager.file.keras_model_file.load_model")
+    @patch("tensorflow.keras.models.load_model")
     @patch("monolith_filemanager.file.keras_model_file.KerasModelFile.__init__")
     def test_read_file(self, mock_init, mock_load_model):
         mock_init.return_value = None
@@ -23,7 +23,7 @@ class TestKerasModelFile(TestCase):
         mock_init.assert_called_once_with(path="test")
         mock_load_model.assert_called_once_with("/some/path.keras_model", compile=False, custom_objects={})
 
-    @patch("monolith_filemanager.file.keras_model_file.save_model")
+    @patch("tensorflow.keras.models.save_model")
     @patch("monolith_filemanager.file.keras_model_file.KerasModelFile.__init__")
     def test_write_file(self, mock_init, mock_save_model):
         mock_init.return_value = None
@@ -36,5 +36,6 @@ class TestKerasModelFile(TestCase):
         mock_save_model.assert_called_once_with("string object", "/some/path.keras_model", include_optimizer=False,
                                                 save_format="h5")
 
-    if __name__ == "__main__":
-        main()
+
+if __name__ == "__main__":
+    main()

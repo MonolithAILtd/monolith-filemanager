@@ -5,8 +5,6 @@ import os
 import glob
 from datetime import datetime
 
-from flask import send_from_directory
-
 from monolith_filemanager.adapters.base import Base
 from monolith_filemanager.path import FilePath
 from monolith_filemanager.errors import FileManagerError
@@ -58,6 +56,12 @@ class LocalFileProcessesAdapter(Base):
 
         :return: (flask.send_from_directory) file
         """
+        try:
+            from flask import send_from_directory
+        except ImportError:
+            raise FileManagerError(
+                message=f"exporting file relies of the Flask module, to install the correct version run the command: file-install-flask"
+            )
         self.check_local_file(path=self.path)
         full_path = self.python_path + "/" + self.path.root
         return send_from_directory(directory=full_path, filename=self.path.file)

@@ -1,11 +1,10 @@
+import os
 from typing import Tuple, List, Union, Any
 
-import boto3
-import os
 from .bucket_manager import BucketManager
+from .errors import V1EngineError
 from .file_manager import FileManager
 from ..path import FilePath
-from .errors import V1EngineError
 
 
 class V1Engine(BucketManager, FileManager):
@@ -27,6 +26,13 @@ class V1Engine(BucketManager, FileManager):
         """
         The constructor for the V1Engine class.
         """
+        try:
+            import boto3
+        except ImportError:
+            raise V1EngineError(
+                message="AWS s3 file management requires boto3 to work. Run the command: 'file-install-aws' to install "
+                        "the required modules"
+        )
         BucketManager.__init__(self)
         FileManager.__init__(self)
         self.client = boto3.client('s3')

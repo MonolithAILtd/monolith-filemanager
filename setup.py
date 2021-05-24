@@ -25,7 +25,7 @@ directives = {
 
 setuptools.setup(
     name="monolith_filemanager",
-    version="0.0.7",
+    version="0.0.9",
     author="Maxwell Flitton",
     author_email="maxwell@gmail.com",
     description="Python package for reading and writing files",
@@ -42,10 +42,11 @@ setuptools.setup(
         "pyvista>=0.29.0",
         "PyYAML>=5.3",
         "globre>=0.1.5",
-        "boto3>=1.16.43",
-        "tensorflow>=2.1.0",
-        "Flask>=1.0.0"
+        "dill>=0.2.8"
     ],
+    extras_require={
+     'flask': ["Flask>=1.0.0", "tensorflow>=2.1.0", "boto3>=1.16.43"]
+    },
     packages=find_packages(exclude=("tests",)),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -57,6 +58,9 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'file-hello = monolith_filemanager.console_commands.hello:print_logo',
+            'file-install-flask = monolith_filemanager.console_commands.install_flask:install_flask',
+            'file-install-tensorflow = monolith_filemanager.console_commands.install_tensorflow:install_tensorflow',
+            'file-install-aws = monolith_filemanager.console_commands.install_boto:install_boto'
         ],
     }
     # ext_modules=cythonize("caching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),
