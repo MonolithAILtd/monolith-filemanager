@@ -20,3 +20,5 @@ jobs:
           pip install -r requirements.txt
       - name: run tests
         run: python -m unittest discover ./tests
+      - name: update version
+        run: python refactor_requirements.py
