@@ -18,6 +18,9 @@ class CustomBuildPy(build_py_orig):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+with open("VERSION.txt", "r") as fh:
+    version = fh.read()
+
 directives = {
     'language_level': 3,
     'always_allow_keywords': True
@@ -25,7 +28,7 @@ directives = {
 
 setuptools.setup(
     name="monolith_filemanager",
-    version="0.0.9",
+    version=version,
     author="Maxwell Flitton",
     author_email="maxwell@gmail.com",
     description="Python package for reading and writing files",
