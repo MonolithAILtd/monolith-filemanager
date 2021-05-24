@@ -27,6 +27,6 @@ jobs:
         run: python setup.py sdist
       - name: deploy to pypi
         if: github.event.pull_request.merged == true
-        uses: pypa/gh-action-pypi-publish@main
+        uses: pypa/gh-action-pypi-publish
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
