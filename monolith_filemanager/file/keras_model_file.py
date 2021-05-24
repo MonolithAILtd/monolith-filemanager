@@ -1,8 +1,7 @@
 from typing import Any, Union
 
-from tensorflow.keras.models import save_model, load_model
-
 from .base import File
+from .errors import KerasModelFileError
 from ..path import FilePath
 
 
@@ -25,6 +24,12 @@ class KerasModelFile(File):
 
         :return: Data from the json file
         """
+        try:
+            from tensorflow.keras.models import load_model
+        except ImportError:
+            raise KerasModelFileError(
+                message="loading a keras model relies on tensorflow, to install the correct version run the command: 'file-install-tensorflow'"
+            )
         return load_model(self.path, compile=False, custom_objects=custom_objects)
 
     def write(self, data: Any) -> None:
@@ -32,4 +37,10 @@ class KerasModelFile(File):
         Writes data to file.
         :param data: (python dict) data to be written to file
         """
+        try:
+            from tensorflow.keras.models import save_model
+        except ImportError:
+            raise KerasModelFileError(
+                message="saving a keras model relies on tensorflow, to install the correct version run the command: 'file-install-tensorflow'"
+            )
         save_model(data, self.path, include_optimizer=False, save_format='h5')

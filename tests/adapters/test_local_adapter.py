@@ -49,7 +49,7 @@ class TestLocalFileProcessesAdapter(TestCase):
         test.file_types.get_file.return_value.assert_called_once_with(path=test.path)
         self.assertEqual(test.file_types.get_file.return_value.return_value, out_come)
 
-    @patch("monolith_filemanager.adapters.local_file_processes.send_from_directory")
+    @patch("flask.send_from_directory")
     @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.check_local_file")
     @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def test_export_file(self, mock_init, mock_check_local_file, mock_send_from_directory):

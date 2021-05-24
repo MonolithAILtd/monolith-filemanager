@@ -1,9 +1,8 @@
 import os
 from typing import Any, Union
 
-import tensorflow as tf
-
 from .base import File
+from .errors import ProtobufFileError
 from ..path import FilePath
 
 
@@ -27,8 +26,15 @@ class ProtobufFile(File):
 
         :return: Data from the pb file
         """
-        with tf.io.gfile.GFile(self.path, "rb") as file:
-            graph_def = tf.compat.v1.GraphDef()
+        try:
+            from tensorflow.io.gfile import GFile
+            from tensorflow.compat.v1 import GraphDef
+        except ImportError:
+            raise ProtobufFileError(
+                message="tensorflow is needed for ProtobufFile. To install run the command: 'file-install-tensorflow'"
+            )
+        with GFile(self.path, "rb") as file:
+            graph_def = GraphDef()
             graph_def.ParseFromString(file.read())
         return graph_def
 
@@ -39,8 +45,14 @@ class ProtobufFile(File):
         :param data: (python object) data to be written to file
         :return: None
         """
+        try:
+            from tensorflow.io import write_graph
+        except ImportError:
+            raise ProtobufFileError(
+                message="tensorflow is needed for ProtobufFile. To install run the command: 'file-install-tensorflow'"
+            )
         directory, filename = os.path.split(self.path)
-        tf.io.write_graph(
+        write_graph(
             graph_or_graph_def=data,
             logdir=directory,
             name=filename,
