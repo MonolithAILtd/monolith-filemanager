@@ -1,6 +1,8 @@
 name: Publish Python 🐍 distributions 📦 to PyPI
 
-on: push
+on:
+  pull_request:
+    types: [closed, opened]
 
 jobs:
   run-shell-command:
@@ -12,6 +14,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: run tests
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
         run: python -m unittest discover ./tests
       - name: update version
         run: python get_latest_version.py
