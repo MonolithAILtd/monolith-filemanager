@@ -362,7 +362,6 @@ class LocalFileProcessesAdapter(Base):
             if os.path.isfile(existing_path):
                 self.path = f"{self.path}/{path}"
                 self.move_file(destination_folder=destination_folder)
-            # elif os.path.isdir(existing_path):
             else:
                 self.path = f"{self.path}/{path}"
                 self.move_folder(destination_folder=destination_folder)
