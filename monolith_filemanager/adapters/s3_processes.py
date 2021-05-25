@@ -264,7 +264,7 @@ class S3ProcessesAdapter(Base):
         old_bucket_name, old_file_name, _ = self._engine._split_s3_path(self.path)
         new_bucket_name, new_file_name, _ = self._engine._split_s3_path(new_path)
 
-        self._engine.resource.Object(old_bucket_name, new_file_name).copy_from(
+        self._engine.resource.Object(new_bucket_name, new_file_name).copy_from(
             CopySource=f"{old_bucket_name}/{old_file_name}")
 
     def copy_folder(self, new_folder: str) -> None:
