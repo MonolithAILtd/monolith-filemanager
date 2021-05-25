@@ -24,13 +24,13 @@ def write_version_to_file(version_number: str) -> None:
 
     Returns: None
     """
-    version_file_path: str = str(pathlib.Path(__file__).parent.absolute()) + "/VERSION.txt"
+    version_file_path: str = str(pathlib.Path(__file__).parent.absolute()) + "/monolith_filemanager/version.py"
 
     if os.path.exists(version_file_path):
         os.remove(version_file_path)
 
     with open(version_file_path, "w") as f:
-        f.write(version_number)
+        f.write(f"VERSION='{version_number}'")
 
 
 def unpack_version_number(version_string: str) -> Tuple[int, int, int]:
