@@ -351,14 +351,16 @@ class TestS3ProcessesAdapter(TestCase):
         mock_filepath2 = MagicMock()
         mock_filepath2.to_string.return_value = f"{mock_destination_folder}/{mock_paths[1]}"
         mock_filepath2.get_file_type.return_value = None
-        mock_filepath.side_effect = [mock_filepath1, mock_filepath2]
+        mock_filepath.side_effect = [mock_filepath1, None, mock_filepath2, None]
 
         mock_move_file.return_value = None
         mock_move_folder.return_value = None
 
         self.test_folder.batch_move(paths=mock_paths, destination_folder=mock_destination_folder)
         mock_filepath.assert_has_calls([call(f"{mock_destination_folder}/{mock_paths[0]}"),
-                                        call(f"{mock_destination_folder}/{mock_paths[1]}")])
+                                        call(f"{self.test_folder.path}/{mock_paths[0]}"),
+                                        call(f"{mock_destination_folder}/{mock_paths[1]}"),
+                                        call(f"{self.test_folder.path}/{mock_paths[1]}")])
         mock_move_file.assert_called_once_with(destination_folder=mock_destination_folder)
         mock_move_folder.assert_called_once_with(destination_folder=mock_destination_folder)
 
