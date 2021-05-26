@@ -410,10 +410,10 @@ class S3ProcessesAdapter(Base):
         for path in paths:
             dest_path = FilePath(f"{destination_folder}/{path}")
             if dest_path.get_file_type(dest_path.to_string()) is not None:
-                self.path = f"{self.path}/{path}"
+                self.path = FilePath(f"{self.path}/{path}")
                 self.move_file(destination_folder=destination_folder)
             else:
-                self.path = f"{self.path}/{path}"
+                self.path = FilePath(f"{self.path}/{path}")
                 self.move_folder(destination_folder=destination_folder)
             self.path = origin_folder
 
@@ -435,4 +435,4 @@ class S3ProcessesAdapter(Base):
 
         :return: None
         """
-        self.path = self.path.rstrip("/")
+        self.path = FilePath(self.path.rstrip("/"))
