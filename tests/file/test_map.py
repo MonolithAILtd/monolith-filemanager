@@ -1,11 +1,12 @@
 from unittest import TestCase, main
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 from monolith_filemanager.file import FileMap, Singleton
 
 
 class TestFileMap(TestCase):
 
-    def test___init__(self):
+    @patch("monolith_filemanager.file.FileMap.init_bindings")
+    def test___init__(self, mock_init_bindings):
         test = FileMap()
         test_two = FileMap()
 
@@ -13,42 +14,46 @@ class TestFileMap(TestCase):
 
         test["one"] = 1
         self.assertEqual(test, test_two)
+        mock_init_bindings.assert_called_once_with()
 
         test = FileMap()
         Singleton._instances = {}
         test_two = FileMap()
         self.assertNotEqual(id(test), id(test_two))
         Singleton._instances = {}
+        mock_init_bindings.assert_has_calls = [call(), call()]
 
-    def test_add_binding(self):
+    @patch("monolith_filemanager.file.FileMap.__init__")
+    def test_add_binding(self, mock_init):
+        mock_init.return_value = None
         test = FileMap()
         mock_file_object = MagicMock()
-        mock_file_object.SUPPORTED_FORMATS = ["csv", "txt"]
+        mock_file_object.SUPPORTED_FORMATS = ["ext1", "ext2"]
         test.add_binding(file_object=mock_file_object)
 
         expected_outcome = {
-            "csv": mock_file_object,
-            "txt": mock_file_object
+            "ext1": mock_file_object,
+            "ext2": mock_file_object
         }
 
         self.assertEqual(expected_outcome, test)
 
         mock_file_object_two = MagicMock()
-        mock_file_object_two.SUPPORTED_FORMATS = ["pdf", "pickle"]
+        mock_file_object_two.SUPPORTED_FORMATS = ["ext3", "ext4"]
 
         test.add_binding(file_object=mock_file_object_two)
 
         expected_outcome = {
-            "csv": mock_file_object,
-            "txt": mock_file_object,
-            "pdf": mock_file_object_two,
-            "pickle": mock_file_object_two
+            "ext1": mock_file_object,
+            "ext2": mock_file_object,
+            "ext3": mock_file_object_two,
+            "ext4": mock_file_object_two
         }
 
         self.assertEqual(expected_outcome, test)
 
         mock_file_object_three = MagicMock()
-        mock_file_object_three.SUPPORTED_FORMATS = ["txt"]
+        mock_file_object_three.SUPPORTED_FORMATS = ["ext1"]
 
         with self.assertRaises(Exception):
             test.add_binding(file_object=mock_file_object_three)

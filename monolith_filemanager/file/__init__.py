@@ -20,6 +20,7 @@ class FileMap(dict, metaclass=Singleton):
         """
         super().__init__()
         self.bindings_imported = False
+        self.init_bindings()
 
     def init_bindings(self) -> None:
         """
