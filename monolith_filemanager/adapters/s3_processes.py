@@ -18,6 +18,8 @@ class S3ProcessesAdapter(Base):
         """
         The constructor for the S3ProcessesAdapter class.
 
+        self.path has any trailing '/' stripped to account for root folder level paths e.g. s3://example-bucket/
+
         :param file_path: (str) path to the file concerned
         :param caching: (Optional[Any]) the CacheManager object to be used which is to be initialized before being passed through
         """
@@ -25,6 +27,7 @@ class S3ProcessesAdapter(Base):
         self._engine: V1Engine = V1Engine()
         self._cache: Any = caching
         self._s3: bool = True
+        self._strip_path_slash()
 
     def local_file_object(self) -> File:
         """
@@ -264,7 +267,7 @@ class S3ProcessesAdapter(Base):
         old_bucket_name, old_file_name, _ = self._engine._split_s3_path(self.path)
         new_bucket_name, new_file_name, _ = self._engine._split_s3_path(new_path)
 
-        self._engine.resource.Object(old_bucket_name, new_file_name).copy_from(
+        self._engine.resource.Object(new_bucket_name, new_file_name).copy_from(
             CopySource=f"{old_bucket_name}/{old_file_name}")
 
     def copy_folder(self, new_folder: str) -> None:
@@ -407,10 +410,10 @@ class S3ProcessesAdapter(Base):
         for path in paths:
             dest_path = FilePath(f"{destination_folder}/{path}")
             if dest_path.get_file_type(dest_path.to_string()) is not None:
-                self.path = f"{self.path}/{path}"
+                self.path = FilePath(f"{self.path}/{path}")
                 self.move_file(destination_folder=destination_folder)
             else:
-                self.path = f"{self.path}/{path}"
+                self.path = FilePath(f"{self.path}/{path}")
                 self.move_folder(destination_folder=destination_folder)
             self.path = origin_folder
 
@@ -425,3 +428,11 @@ class S3ProcessesAdapter(Base):
             return True
         else:
             return False
+
+    def _strip_path_slash(self) -> None:
+        """
+        self.path has any trailing '/' stripped to account for root folder level paths e.g. s3://example-bucket/
+
+        :return: None
+        """
+        self.path = FilePath(self.path.rstrip("/"))

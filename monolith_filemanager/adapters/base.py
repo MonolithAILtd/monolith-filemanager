@@ -22,7 +22,6 @@ class Base(ABC):
         """
         self.path: FilePath = file_path
         self.file_types: FileMap = FileMap()
-        self.file_types.init_bindings()
         self._s3: bool = False
         self.config: Optional[str] = None
 
