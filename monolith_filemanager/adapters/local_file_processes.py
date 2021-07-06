@@ -26,7 +26,7 @@ class LocalFileProcessesAdapter(Base):
         :param file_path: (str) path to the file concerned
         """
         super().__init__(file_path=file_path)
-        self.python_path: str = str(os.environ.get("PYTHONPATH").split(":")[0])
+        self.python_path: str = str(os.environ.get("PYTHONPATH", "").split(":")[0])
 
     @staticmethod
     def check_local_file(path: FilePath) -> None:
