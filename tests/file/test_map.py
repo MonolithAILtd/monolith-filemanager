@@ -5,6 +5,12 @@ from monolith_filemanager.file import FileMap, Singleton
 
 class TestFileMap(TestCase):
 
+    def setUp(self):
+        Singleton._instances = {}
+
+    def tearDown(self):
+        Singleton._instances = {}
+
     @patch("monolith_filemanager.file.FileMap.init_bindings")
     def test___init__(self, mock_init_bindings):
         test = FileMap()
