@@ -27,12 +27,13 @@ class VtkFile(File):
         :return: (Any) data from file
         """
         try:
-            import pyvista as pv
+            from pyvista import read as pv_read
         except ImportError:
             raise VTKFileError(
                 message="loading a vtk file relies on the vtk module. Please install this module and try again."
             )
-        return expand_3d_point_arrays(pv.read(self.path))
+
+        return expand_3d_point_arrays(pv_read(self.path))
 
     def write(self, data: Any) -> None:
         """
