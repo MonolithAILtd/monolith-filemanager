@@ -57,7 +57,6 @@ class PandasFile(File):
         
         :return: Data from file
         """
-        # TODO do such that if dask or pandas can't handle, the other one can
         return self._read_dask(chunk_size, **kwargs) if lazy else self._read_pandas(**kwargs)
 
     def write(self, data: DataFrameType, chunk_size: Union[int, str] = '64MB') -> None:
