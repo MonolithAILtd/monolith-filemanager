@@ -1,7 +1,12 @@
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
-from monolith_filemanager.file.pandas_file import PandasFile
+
+import dask.dataframe as dd
 import pandas as pd
+from dask.dataframe.utils import assert_eq
+
+from monolith_filemanager.file.errors import PandasFileError
+from monolith_filemanager.file.pandas_file import PandasFile
 
 LOADING_METHODS = {
     "h5": pd.read_hdf,
@@ -34,18 +39,6 @@ class TestPandasFile(TestCase):
         self.assertEqual(test_input.to_csv, out_come)
         self.assertEqual(test_input.to_csv("test path"), out_come("test path"))
 
-    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__")
-    def test_read(self, mock_init):
-        mock_init.return_value = None
-        test = PandasFile(path="test")
-        test.path = MagicMock()
-        test.path.file_type = "csv"
-        test.LOADING_METHODS["csv"] = MagicMock()
-        out_come = test.read()
-
-        self.assertEqual(test.LOADING_METHODS["csv"].return_value, out_come)
-        test.LOADING_METHODS["csv"].assert_called_once_with(test.path)
-
     @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__")
     def test_write(self, mock_init, mock_map):
@@ -54,6 +47,7 @@ class TestPandasFile(TestCase):
 
         test.path = MagicMock()
         test_data = pd.DataFrame([{"one": 1, "two": 2}, {"one": 1, "two": 2}])
+        test_data_dask = dd.from_pandas(test_data, npartitions=1)
 
         test.write(data=test_data)
 
@@ -64,8 +58,63 @@ class TestPandasFile(TestCase):
         with self.assertRaises(Exception):
             test.write(data=[])
 
-        mock_map.assert_called_once_with(data=test_data)
-        mock_map.return_value.assert_called_once_with(test.path, header=True, index=False)
+        mock_map.assert_called_once()
+        assert_eq(mock_map.call_args[1]['data'], test_data_dask)
+        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
+
+    @patch("monolith_filemanager.file.pandas_file.PandasFile._read_dask", return_value=None)
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
+    def test_read_lazy(self, _, mock__read_dask):
+        PandasFile(path='test').read(lazy=True)
+        mock__read_dask.assert_called_once_with('64MB')
+
+    @patch("monolith_filemanager.file.pandas_file.PandasFile._read_pandas", return_value=None)
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
+    def test_read_eager(self, _, mock__read_pandas):
+        PandasFile(path='test').read(lazy=False)
+        mock__read_pandas.assert_called_once_with()
+
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
+    def test__read_dask_valid_filetype(self, _):
+        test = PandasFile(path='test')
+        test.path = MagicMock()
+        test.path.file_type = 'csv'
+        test.DASK_LOADING_METHODS['csv'] = MagicMock()
+
+        result = test._read_dask(chunk_size=1)
+
+        self.assertEqual(test.DASK_LOADING_METHODS['csv'].return_value, result)
+        test.DASK_LOADING_METHODS['csv'].assert_called_once_with(test.path, chunksize=1, block_size=1)
+
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
+    def test__read_dask_invalid_filetype(self, _):
+        test = PandasFile(path='test')
+        test.path = MagicMock()
+        test.path.file_type = 'INVALID FILETYPE'
+
+        with self.assertRaises(PandasFileError):
+            _ = test._read_dask(chunk_size=1)
+
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
+    def test__read_pandas_valid_filetype(self, _):
+        test = PandasFile(path='test')
+        test.path = MagicMock()
+        test.path.file_type = 'csv'
+        test.PANDAS_LOADING_METHODS['csv'] = MagicMock()
+
+        result = test._read_pandas()
+
+        self.assertEqual(test.PANDAS_LOADING_METHODS['csv'].return_value, result)
+        test.PANDAS_LOADING_METHODS['csv'].assert_called_once_with(test.path)
+
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
+    def test__read_pandas_invalid_filetype(self, _):
+        test = PandasFile(path='test')
+        test.path = MagicMock()
+        test.path.file_type = 'INVALID FILETYPE'
+
+        with self.assertRaises(PandasFileError):
+            _ = test._read_pandas(chunk_size=1)
 
 
 if __name__ == "__main__":
