@@ -54,7 +54,9 @@ class PandasFile(File):
     def read(self, lazy: bool = False, chunk_size: Union[int, str] = '64MB', **kwargs) -> DataFrameType:
         """
         Gets data from file defined by file path.
-        
+
+        :param lazy: (bool) Whether reading should be lazy (returns dask DataFrame) or eager (returns pandas DataFrame)
+        :param chunk_size: (dask compatible int or str) size in bytes of chunks to read. Only used if lazy == True
         :return: Data from file
         """
         return self._read_dask(chunk_size, **kwargs) if lazy else self._read_pandas(**kwargs)
@@ -95,11 +97,22 @@ class PandasFile(File):
         return function_map[self.path.file_type]
 
     def _read_pandas(self, **kwargs) -> pd.DataFrame:
+        """
+        Read from file using pandas loading method
+
+        :return: pandas DataFrame from file
+        """
         if self.path.file_type not in self.PANDAS_SUPPORTED_FORMATS:
             raise PandasFileError(f'File type {self.path.file_type} not supported for eager loading.')
         return self.PANDAS_LOADING_METHODS[self.path.file_type](self.path, **kwargs)
 
     def _read_dask(self, chunk_size: Union[int, str], **kwargs) -> dd.DataFrame:
+        """
+        Read from file using dask loading method
+
+        :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
+        :return: dask DataFrame from file
+        """
         if self.path.file_type not in self.DASK_SUPPORTED_FORMATS:
             raise PandasFileError(f'File type {self.path.file_type} not supported for lazy loading.')
 
