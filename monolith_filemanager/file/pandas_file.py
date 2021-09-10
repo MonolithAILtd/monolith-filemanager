@@ -96,9 +96,14 @@ class PandasFile(File):
         return function_map[self.path.file_type]
 
     def _read_pandas(self, **kwargs) -> pd.DataFrame:
+        if self.path.file_type not in self.PANDAS_SUPPORTED_FORMATS:
+            raise PandasFileError(f'File type {self.path.file_type} not supported for eager loading.')
         return self.PANDAS_LOADING_METHODS[self.path.file_type](self.path, **kwargs)
 
     def _read_dask(self, chunk_size: Union[int, str], **kwargs) -> dd.DataFrame:
+        if self.path.file_type not in self.DASK_SUPPORTED_FORMATS:
+            raise PandasFileError(f'File type {self.path.file_type} not supported for lazy loading.')
+
         # Set both chunksize and block_size kwargs as depending on dask read method can use either
         return self.DASK_LOADING_METHODS[self.path.file_type](self.path, chunksize=chunk_size, block_size=chunk_size,
                                                               **kwargs)
