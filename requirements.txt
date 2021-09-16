@@ -37,6 +37,7 @@ meshio==4.4.3
 mock==4.0.3
 numpy==1.19.2
 oauthlib==3.1.0
+openpyxl==3.0.8
 opt-einsum==3.3.0
 packaging==20.9
 pandas==1.2.4
@@ -77,4 +78,5 @@ vtk==9.0.1
 webencodings==0.5.1
 Werkzeug==1.0.1
 wrapt==1.12.1
+xlrd==1.2.0
 zipp==3.4.1
