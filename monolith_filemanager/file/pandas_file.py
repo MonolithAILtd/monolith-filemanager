@@ -2,6 +2,7 @@ from typing import Union
 
 import dask.dataframe as dd
 import pandas as pd
+from dask import delayed
 
 from .base import File
 from .errors import PandasFileError
@@ -9,6 +10,11 @@ from ..path import FilePath
 
 accepted_methods = Union[pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_table, pd.read_table]
 DataFrameType = Union[pd.DataFrame, dd.DataFrame]
+
+
+def dask_read_excel(path: str) -> dd.DataFrame:
+    delayed_df = delayed(pd.read_excel)(path)
+    return dd.from_delayed(delayed_df)
 
 
 class PandasFile(File):
@@ -27,9 +33,8 @@ class PandasFile(File):
     DASK_LOADING_METHODS = {
         "parquet": dd.read_parquet,
         "csv": dd.read_csv,
-        # TODO find a way to read excel files with dask. Possibly with dask delayed and pandas read_csv
-        # "xls": dd.read_excel,
-        # "xlsx": dd.read_excel,
+        "xls": dask_read_excel,
+        "xlsx": dask_read_excel,
         "dat": dd.read_table,
         "data": dd.read_table
     }
@@ -77,9 +82,13 @@ class PandasFile(File):
             data = dd.from_pandas(data, npartitions=1)
 
         data = data.repartition(partition_size=chunk_size)
-        self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
 
-    def _map_write_functions(self, data: DataFrameType) -> accepted_methods:
+        if self.path.file_type in ('xls', 'xlsx'):
+            self._map_write_functions(data=data)(self.path)
+        else:
+            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
+
+    def _map_write_functions(self, data: dd.DataFrame) -> accepted_methods:
         """
         Maps the write function depending on the file type from self.path (hidden file).
 
@@ -89,8 +98,8 @@ class PandasFile(File):
         function_map = {
             "parquet": data.to_parquet,
             "csv": data.to_csv,
-            # "xls": data.to_excel,
-            # "xlsx": data.to_excel,
+            "xls": data.compute(scheduler='threads').to_excel,
+            "xlsx": data.compute(scheduler='threads').to_excel,
             "dat": data.to_csv,
             "data": data.to_csv
         }
