@@ -8,7 +8,7 @@ from .base import File
 from .errors import PandasFileError
 from ..path import FilePath
 
-accepted_methods = Union[pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_table, pd.read_table]
+PandasLoadMethod = Union[pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_table, pd.read_table]
 DataFrameType = Union[pd.DataFrame, dd.DataFrame]
 
 
@@ -42,11 +42,6 @@ class PandasFile(File):
     PANDAS_SUPPORTED_FORMATS = list(PANDAS_LOADING_METHODS)
     DASK_SUPPORTED_FORMATS = list(DASK_LOADING_METHODS)
     SUPPORTED_FORMATS = list(set(PANDAS_SUPPORTED_FORMATS + DASK_SUPPORTED_FORMATS))
-
-    LOADING_KWARGS = {
-        "dat": {"sep": "\s+"},
-        "data": {"sep": "\s+"}
-    }
 
     def __init__(self, path: Union[str, FilePath]) -> None:
         """
@@ -88,12 +83,12 @@ class PandasFile(File):
         else:
             self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
 
-    def _map_write_functions(self, data: dd.DataFrame) -> accepted_methods:
+    def _map_write_functions(self, data: dd.DataFrame) -> PandasLoadMethod:
         """
         Maps the write function depending on the file type from self.path (hidden file).
 
         :param data: (pandas data frame) data to be written to file
-        :return: (accepted_methods) a pandas read method ready to be used
+        :return: (PandasLoadMethod) a pandas read method ready to be used
         """
         function_map = {
             "parquet": data.to_parquet,
@@ -125,9 +120,12 @@ class PandasFile(File):
         if self.path.file_type not in self.DASK_SUPPORTED_FORMATS:
             raise PandasFileError(f'File type {self.path.file_type} not supported for lazy loading.')
 
-        # Set both chunksize and block_size kwargs as depending on dask read method can use either
-        return self.DASK_LOADING_METHODS[self.path.file_type](self.path, chunksize=chunk_size, block_size=chunk_size,
-                                                              **kwargs)
+        if self.path.file_type in ('xls', 'xlsx'):
+            return self.DASK_LOADING_METHODS[self.path.file_type](self.path, **kwargs)
+        elif self.path.file_type in ('parquet'):
+            return self.DASK_LOADING_METHODS[self.path.file_type](self.path, chunksize=chunk_size, **kwargs)
+
+        return self.DASK_LOADING_METHODS[self.path.file_type](self.path, blocksize=chunk_size, **kwargs)
 
     @staticmethod
     def supports_s3():

@@ -1,25 +1,34 @@
+import tempfile
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock
 
 import dask.dataframe as dd
 import pandas as pd
 from dask.dataframe.utils import assert_eq
+from pandas.testing import assert_frame_equal
+from parameterized import parameterized
 
 from monolith_filemanager.file.errors import PandasFileError
 from monolith_filemanager.file.pandas_file import PandasFile
 
-LOADING_METHODS = {
-    "h5": pd.read_hdf,
-    "parquet": pd.read_parquet,
-    "csv": pd.read_csv,
-    "xls": pd.read_excel,
-    "xlsx": pd.read_excel,
-    "dat": pd.read_table,
-    "data": pd.read_table
-}
+file_types = PandasFile.SUPPORTED_FORMATS
 
 
 class TestPandasFile(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.test_dir = tempfile.TemporaryDirectory()
+        cls.example_df = pd.DataFrame({'a': [1, 2], 'b': [3, 4], 'c': [5, 6]})
+        cls.example_df.to_parquet(f'{cls.test_dir.name}/data.parquet')
+        cls.example_df.to_csv(f'{cls.test_dir.name}/data.csv', index=False)
+        cls.example_df.to_excel(f'{cls.test_dir.name}/data.xls', index=False)
+        cls.example_df.to_excel(f'{cls.test_dir.name}/data.xlsx', index=False)
+        cls.example_df.to_csv(f'{cls.test_dir.name}/data.dat', index=False, sep=',')
+        cls.example_df.to_csv(f'{cls.test_dir.name}/data.data', index=False, sep=',')
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.test_dir.cleanup()
 
     @patch("monolith_filemanager.file.pandas_file.File.__init__")
     def test___init__(self, mock_file_init):
@@ -75,18 +84,6 @@ class TestPandasFile(TestCase):
         mock__read_pandas.assert_called_once_with()
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
-    def test__read_dask_valid_filetype(self, _):
-        test = PandasFile(path='test')
-        test.path = MagicMock()
-        test.path.file_type = 'csv'
-        test.DASK_LOADING_METHODS['csv'] = MagicMock()
-
-        result = test._read_dask(chunk_size=1)
-
-        self.assertEqual(test.DASK_LOADING_METHODS['csv'].return_value, result)
-        test.DASK_LOADING_METHODS['csv'].assert_called_once_with(test.path, chunksize=1, block_size=1)
-
-    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
     def test__read_dask_invalid_filetype(self, _):
         test = PandasFile(path='test')
         test.path = MagicMock()
@@ -96,18 +93,6 @@ class TestPandasFile(TestCase):
             _ = test._read_dask(chunk_size=1)
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
-    def test__read_pandas_valid_filetype(self, _):
-        test = PandasFile(path='test')
-        test.path = MagicMock()
-        test.path.file_type = 'csv'
-        test.PANDAS_LOADING_METHODS['csv'] = MagicMock()
-
-        result = test._read_pandas()
-
-        self.assertEqual(test.PANDAS_LOADING_METHODS['csv'].return_value, result)
-        test.PANDAS_LOADING_METHODS['csv'].assert_called_once_with(test.path)
-
-    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
     def test__read_pandas_invalid_filetype(self, _):
         test = PandasFile(path='test')
         test.path = MagicMock()
@@ -115,6 +100,22 @@ class TestPandasFile(TestCase):
 
         with self.assertRaises(PandasFileError):
             _ = test._read_pandas(chunk_size=1)
+
+    @parameterized.expand([(f, lazy) for f in file_types for lazy in (True, False)])
+    def test_read_functional(self, file_type, lazy):
+        file = PandasFile(path=f'{self.test_dir.name}/data.{file_type}')
+
+        if file_type in ('dat', 'data'):
+            df = file.read(lazy=lazy, sep=',')
+        else:
+            df = file.read(lazy=lazy)
+
+        if lazy:
+            self.assertIsInstance(df, dd.DataFrame)
+            df = df.compute()
+
+        self.assertIsInstance(df, pd.DataFrame)
+        assert_frame_equal(df, self.example_df)
 
 
 if __name__ == "__main__":
