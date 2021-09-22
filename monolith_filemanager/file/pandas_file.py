@@ -80,6 +80,8 @@ class PandasFile(File):
 
         if self.path.file_type in ('xls', 'xlsx'):
             self._map_write_functions(data=data)(self.path)
+        elif self.path.file_type in ('csv', 'dat', 'data'):
+            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'}, single_file=True)
         else:
             self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
 
