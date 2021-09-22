@@ -26,7 +26,7 @@ class LocalFileProcessesAdapter(Base):
         :param file_path: (str) path to the file concerned
         """
         super().__init__(file_path=file_path)
-        self.python_path: str = str(os.environ.get("PYTHONPATH").split(":")[0])
+        self.python_path: str = str(os.environ.get("PYTHONPATH", "").split(":")[0])
 
     @staticmethod
     def check_local_file(path: FilePath) -> None:
@@ -60,7 +60,8 @@ class LocalFileProcessesAdapter(Base):
             from flask import send_from_directory
         except ImportError:
             raise FileManagerError(
-                message=f"exporting file relies of the Flask module, to install the correct version run the command: file-install-flask"
+                message=f"exporting file relies on the Flask module. "
+                        f"To install the correct version run the command: `file-install-flask`."
             )
         self.check_local_file(path=self.path)
         full_path = self.python_path + "/" + self.path.root
