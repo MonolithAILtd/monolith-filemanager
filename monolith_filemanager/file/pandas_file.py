@@ -141,4 +141,4 @@ class PandasFile(File):
 
     @staticmethod
     def supports_s3():
-        return False
+        return True
