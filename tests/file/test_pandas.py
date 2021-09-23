@@ -71,6 +71,32 @@ class TestPandasFile(TestCase):
         assert_eq(mock_map.call_args[1]['data'], test_data_dask)
         mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
 
+    @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
+    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
+    def test_write_with_callback(self, _, mock_map):
+        test = PandasFile(path="test")
+        cb = MagicMock()
+
+        test.path = MagicMock()
+        test_data = pd.DataFrame([{"one": 1, "two": 2}, {"one": 1, "two": 2}])
+        test_data_dask = dd.from_pandas(test_data, npartitions=1)
+
+        test.write(data=test_data, cb=cb)
+
+        with self.assertRaises(Exception):
+            test.write(data="test")
+        with self.assertRaises(Exception):
+            test.write(data=1)
+        with self.assertRaises(Exception):
+            test.write(data=[])
+
+        mock_map.assert_called_once()
+        assert_eq(mock_map.call_args[1]['data'], test_data_dask)
+        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
+
+        cb.__enter__.assert_called_once()
+        cb.__exit__.assert_called_once()
+
     @patch("monolith_filemanager.file.pandas_file.PandasFile._read_dask", return_value=None)
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
     def test_read_lazy(self, _, mock__read_dask):
