@@ -1,8 +1,9 @@
-from typing import Union
+from typing import Union, Optional
 
 import dask.dataframe as dd
 import pandas as pd
 from dask import delayed
+from dask.callbacks import Callback
 
 from .base import File
 from .errors import PandasFileError
@@ -61,12 +62,13 @@ class PandasFile(File):
         """
         return self._read_dask(chunk_size, **kwargs) if lazy else self._read_pandas(**kwargs)
 
-    def write(self, data: DataFrameType, chunk_size: Union[int, str] = '64MB') -> None:
+    def write(self, data: DataFrameType, chunk_size: Union[int, str] = '64MB', cb: Optional[Callback] = None) -> None:
         """
         Writes data to file.
 
         :param data: (pandas or dask data frame) data to be written to file
         :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
+        :param cb: (optional dask Callback) A dask-compatible callback for updates during computation of the dask graph.
         :return: None
         """
         if not isinstance(data, (pd.DataFrame, dd.DataFrame)):
@@ -78,10 +80,18 @@ class PandasFile(File):
 
         data = data.repartition(partition_size=chunk_size)
 
+        if cb is None:
+            self._write_functions(data)
+        else:
+            with cb:
+                self._write_functions(data)
+
+    def _write_functions(self, data) -> None:
         if self.path.file_type in ('xls', 'xlsx'):
             self._map_write_functions(data=data)(self.path)
         elif self.path.file_type in ('csv', 'dat', 'data'):
-            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'}, single_file=True)
+            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'},
+                                                 single_file=True)
         else:
             self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
 
@@ -131,4 +141,4 @@ class PandasFile(File):
 
     @staticmethod
     def supports_s3():
-        return False
+        return True
