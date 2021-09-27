@@ -58,7 +58,7 @@ class S3ProcessesAdapter(Base):
 
         elif self.path.file_type == "parquet":
             # read_parquet can support s3 paths
-            return self.local_file_object().read()
+            return self.local_file_object().read(**kwargs)
 
         else:
             if self._cache is None:
