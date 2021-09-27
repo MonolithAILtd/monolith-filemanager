@@ -60,7 +60,7 @@ class PandasFile(File):
         :param chunk_size: (dask compatible int or str) size in bytes of chunks to read. Only used if lazy == True
         :return: Data from file
         """
-        return self._read_dask(chunk_size, **kwargs) if lazy else self._read_pandas(**kwargs)
+        return self._read_dask(chunk_size, **kwargs) if lazy else self._read_dask(chunk_size, **kwargs).compute()
 
     def write(self, data: DataFrameType, chunk_size: Union[int, str] = '64MB', cb: Optional[Callback] = None) -> None:
         """
