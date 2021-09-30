@@ -103,11 +103,11 @@ class TestPandasFile(TestCase):
         PandasFile(path='test').read(lazy=True)
         mock__read_dask.assert_called_once_with('64MB')
 
-    @patch("monolith_filemanager.file.pandas_file.PandasFile._read_pandas", return_value=None)
+    @patch("monolith_filemanager.file.pandas_file.PandasFile._read_dask", return_value=MagicMock())
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
     def test_read_eager(self, _, mock__read_pandas):
         PandasFile(path='test').read(lazy=False)
-        mock__read_pandas.assert_called_once_with()
+        mock__read_pandas.assert_called_once_with('64MB')
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
     def test__read_dask_invalid_filetype(self, _):
