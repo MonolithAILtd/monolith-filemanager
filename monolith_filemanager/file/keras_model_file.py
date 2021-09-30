@@ -32,7 +32,7 @@ class KerasModelFile(File):
             )
         return load_model(self.path, compile=False, custom_objects=custom_objects)
 
-    def write(self, data: Any) -> None:
+    def write(self, data: Any, **kwargs) -> None:
         """
         Writes data to file.
         :param data: (python dict) data to be written to file

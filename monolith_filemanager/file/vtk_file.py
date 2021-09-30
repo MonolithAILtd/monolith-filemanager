@@ -35,7 +35,7 @@ class VtkFile(File):
 
         return expand_3d_point_arrays(pv_read(self.path))
 
-    def write(self, data: Any) -> None:
+    def write(self, data: Any, **kwargs) -> None:
         """
         Writes data to file.
         :param data: (python object) data to be written to file

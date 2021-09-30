@@ -46,7 +46,7 @@ class GmshFile(File):
 
         return out_data
 
-    def write(self, data: Any) -> None:
+    def write(self, data: Any, **kwargs) -> None:
         """
         Writes data to file.
 

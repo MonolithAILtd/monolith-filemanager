@@ -28,7 +28,7 @@ class JSONFile(File):
             data = json.load(data_file)
         return data
 
-    def write(self, data: Any) -> None:
+    def write(self, data: Any, **kwargs) -> None:
         """
         Writes data to file.
 

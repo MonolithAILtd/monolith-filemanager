@@ -105,5 +105,5 @@ class MatlabFile(File):
 
         return loadmat(self.path)
 
-    def write(self, data: Any) -> None:
+    def write(self, data: Any, **kwargs) -> None:
         raise MatlabFileError(message="write is not supported for matlab files")

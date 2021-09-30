@@ -62,7 +62,8 @@ class PandasFile(File):
         """
         return self._read_dask(chunk_size, **kwargs) if lazy else self._read_dask(chunk_size, **kwargs).compute()
 
-    def write(self, data: DataFrameType, chunk_size: Union[int, str] = '64MB', cb: Optional[Callback] = None) -> None:
+    def write(self, data: DataFrameType, chunk_size: Union[int, str] = '64MB', cb: Optional[Callback] = None,
+              **kwargs) -> None:
         """
         Writes data to file.
 

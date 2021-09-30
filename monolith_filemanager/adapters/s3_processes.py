@@ -107,7 +107,7 @@ class S3ProcessesAdapter(Base):
             '`file = general_filemanager.file_manager(file_path=file_path, caching=caching.CacheManager())`'
         )
 
-    def write_file(self, data: Any) -> None:
+    def write_file(self, data: Any, **kwargs) -> None:
         """
         Uploads data to s3 bucket.
 
@@ -116,7 +116,7 @@ class S3ProcessesAdapter(Base):
         """
         file_object = self.local_file_object()
         if file_object.supports_s3():
-            return file_object.write(data)
+            return file_object.write(data, **kwargs)
         else:
             if self._cache is None:
                 self.raise_missing_cache_error(usage=f'write file \'{self.path}\'')
