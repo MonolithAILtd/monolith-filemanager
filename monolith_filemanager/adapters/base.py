@@ -57,7 +57,7 @@ class Base(ABC):
         pass
 
     @abstractmethod
-    def write_file(self, data) -> None:
+    def write_file(self, data, **kwargs) -> None:
         """
         Placeholder for writing data to a file.
 

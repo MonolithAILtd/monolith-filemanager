@@ -33,7 +33,7 @@ class YmlFile(File):
         raw_data.close()
         return loaded_data
 
-    def write(self, data: Dict) -> None:
+    def write(self, data: Dict, **kwargs) -> None:
         """
         Writes data to file.
 

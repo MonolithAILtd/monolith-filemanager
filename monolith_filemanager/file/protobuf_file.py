@@ -38,7 +38,7 @@ class ProtobufFile(File):
             graph_def.ParseFromString(file.read())
         return graph_def
 
-    def write(self, data: Any) -> None:
+    def write(self, data: Any, **kwargs) -> None:
         """
         Writes data to file.
 

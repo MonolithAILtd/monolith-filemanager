@@ -96,7 +96,7 @@ class LocalFileProcessesAdapter(Base):
         self.check_local_file(path=self.path)
         return custom_read_function(self.path)
 
-    def write_file(self, data):
+    def write_file(self, data, **kwargs):
         """
         Writes data to file.
 
@@ -104,7 +104,7 @@ class LocalFileProcessesAdapter(Base):
         :return: None
         """
         self._create_directory_if_not_exists()
-        self.local_file_object().write(data=data)
+        self.local_file_object().write(data=data, **kwargs)
 
     def write_raw_file(self, data):
         """
