@@ -107,7 +107,6 @@ class TestPandasFile(TestCase):
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
     def test_read_eager(self, _, mock__read_dask):
         PandasFile(path='test').read(lazy=False)
-        mock__read_pandas.assert_called_once_with('64MB')
         mock__read_dask.assert_called_once_with('64MB')
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
