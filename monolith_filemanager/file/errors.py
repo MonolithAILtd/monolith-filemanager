@@ -72,6 +72,18 @@ class KerasModelFileError(Exception):
         super().__init__(message)
 
 
+class VTKFileError(Exception):
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class GmshFileError(Exception):
+
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
 class ProtobufFileError(Exception):
 
     def __init__(self, message: str) -> None:

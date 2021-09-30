@@ -1,8 +1,8 @@
+import tempfile
 from typing import Any, Union
 
-import tempfile
-
 from .base import File
+from .errors import GmshFileError
 from ..path import FilePath
 
 
@@ -26,7 +26,14 @@ class GmshFile(File):
 
         :return: using tempfile as a buffer to converting a CAD file to a mesh
         """
-        import gmsh
+
+        try:
+            import gmsh
+        except ImportError:
+            raise GmshFileError(
+                message="loading a gmsh file relies on the gmsh module. Please install this module and try again."
+            )
+
         # if we initialize with sys.argv it could be anything
         gmsh.initialize()
         gmsh.option.setNumber("General.Terminal", 1)

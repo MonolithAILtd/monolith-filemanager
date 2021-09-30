@@ -1,6 +1,5 @@
 from typing import Any, Union
 
-from scipy.io import loadmat, whosmat
 import numpy as np
 import pandas as pd
 
@@ -47,6 +46,13 @@ class MatlabFile(File):
         :return: (DataFrame) by merging requested variables of the same shape
         """
 
+        try:
+            from scipy.io import loadmat, whosmat
+        except ImportError:
+            raise MatlabFileError(
+                message="loading a matlab file relies on the scipy module. Please install this module and try again."
+            )
+
         # Load full cycle data and get columns for each cycle
         bytes_obj = self.load_bytes(file_path)
         data = loadmat(bytes_obj)
@@ -89,6 +95,14 @@ class MatlabFile(File):
 
         :return: Data from the mat file
         """
+
+        try:
+            from scipy.io import loadmat
+        except ImportError:
+            raise MatlabFileError(
+                message="loading a matlab file relies on the scipy module. Please install this module and try again."
+            )
+
         return loadmat(self.path)
 
     def write(self, data: Any, **kwargs) -> None:
