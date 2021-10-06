@@ -62,12 +62,13 @@ class PandasFile(File):
         """
         return self._read_dask(chunk_size, **kwargs) if lazy else self._read_dask(chunk_size, **kwargs).compute()
 
-    def write(self, data: DataFrameType, chunk_size: Union[int, str] = '64MB', cb: Optional[Callback] = None,
-              **kwargs) -> None:
+    def write(self, data: DataFrameType, repartition: bool = False, chunk_size: Union[int, str] = '64MB',
+              cb: Optional[Callback] = None, **kwargs) -> None:
         """
         Writes data to file.
 
         :param data: (pandas or dask data frame) data to be written to file
+        :param repartition: (bool) whether or not to repartition the dataframe to a given chunk size. Default to False.
         :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
         :param cb: (optional dask Callback) A dask-compatible callback for updates during computation of the dask graph.
         :return: None
@@ -79,7 +80,8 @@ class PandasFile(File):
         if isinstance(data, pd.DataFrame):
             data = dd.from_pandas(data, npartitions=1)
 
-        data = data.repartition(partition_size=chunk_size)
+        if repartition:
+            data = data.repartition(partition_size=chunk_size)
 
         if cb is None:
             self._write_functions(data)
