@@ -58,7 +58,7 @@ class TestPandasFile(TestCase):
         test_data = pd.DataFrame([{"one": 1, "two": 2}, {"one": 1, "two": 2}])
         test_data_dask = dd.from_pandas(test_data, npartitions=1)
 
-        test.write(data=test_data)
+        test.write(data=test_data, repartition=False)
 
         with self.assertRaises(Exception):
             test.write(data="test")
@@ -68,7 +68,7 @@ class TestPandasFile(TestCase):
             test.write(data=[])
 
         mock_map.assert_called_once()
-        assert_eq(mock_map.call_args[1]['data'], test_data_dask)
+        assert_eq(mock_map.call_args[1]['data'], test_data_dask, check_divisions=False)
         mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
@@ -91,7 +91,7 @@ class TestPandasFile(TestCase):
             test.write(data=[])
 
         mock_map.assert_called_once()
-        assert_eq(mock_map.call_args[1]['data'], test_data_dask)
+        assert_eq(mock_map.call_args[1]['data'], test_data_dask, check_divisions=False)
         mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
 
         cb.__enter__.assert_called_once()
@@ -118,14 +118,7 @@ class TestPandasFile(TestCase):
         with self.assertRaises(PandasFileError):
             _ = test._read_dask(chunk_size=1)
 
-    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
-    def test__read_pandas_invalid_filetype(self, _):
-        test = PandasFile(path='test')
-        test.path = MagicMock()
-        test.path.file_type = 'INVALID FILETYPE'
 
-        with self.assertRaises(PandasFileError):
-            _ = test._read_pandas(chunk_size=1)
 
     @parameterized.expand([(f, lazy) for f in file_types for lazy in (True, False)])
     def test_read_functional(self, file_type, lazy):

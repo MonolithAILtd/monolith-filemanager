@@ -78,7 +78,7 @@ class PandasFile(File):
                                           f'Please use a DataFrame for {self.DASK_SUPPORTED_FORMATS}')
 
         if isinstance(data, pd.DataFrame):
-            data = dd.from_pandas(data, npartitions=1)
+            data = dd.from_pandas(data, npartitions=1, sort=False)
 
         if repartition:
             data = data.repartition(partition_size=chunk_size)
@@ -114,16 +114,6 @@ class PandasFile(File):
             "data": data.to_csv
         }
         return function_map[self.path.file_type]
-
-    def _read_pandas(self, **kwargs) -> pd.DataFrame:
-        """
-        Read from file using pandas loading method
-
-        :return: pandas DataFrame from file
-        """
-        if self.path.file_type not in self.PANDAS_SUPPORTED_FORMATS:
-            raise PandasFileError(f'File type {self.path.file_type} not supported for eager loading.')
-        return self.PANDAS_LOADING_METHODS[self.path.file_type](self.path, **kwargs)
 
     def _read_dask(self, chunk_size: Union[int, str], **kwargs) -> dd.DataFrame:
         """
