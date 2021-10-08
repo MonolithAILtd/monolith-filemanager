@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f929e1669864c2cd1ed0630d075ea82898df70557cf6e0d49238929d28d986df"
+            "sha256": "0834cb96405cd2fc8520c1a8ada0dcce58ec5bd3b14053b83fe68d615e736b6d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -282,11 +282,11 @@
         },
         "distributed": {
             "hashes": [
-                "sha256:2a0b6acc921cd4e0143a7c4383cdcbed7defbc4bd9dc3aab0c7f1c45f14f80e1",
-                "sha256:532294b005009ce7c480073e467f9043c5292a735ed535f3fd00517a83a51bfc"
+                "sha256:423dda6fd8d263d6e988700721e7269d588c1bc368026a0a6ae8f2fde108be39",
+                "sha256:bb7163727e3ade4d7e8edb48c5113718b207c183e157ad18697d1316b158d6e4"
             ],
             "index": "pypi",
-            "version": "==2020.12.0"
+            "version": "==2021.1.1"
         },
         "docutils": {
             "hashes": [
@@ -1193,7 +1193,7 @@
                 "sha256:dc60bb302f48acf6da8ca4444cfa17d52c63c5415302a9ee77b3b21618090521",
                 "sha256:dee1bbf3a6c8f73b6b218cb28eed8dd13347ea2f87d572ce19b289d6fd3fbc59"
             ],
-            "markers": "python_version >= '3'",
+            "index": "pypi",
             "version": "==1.4.1"
         },
         "scooby": {
