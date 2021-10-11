@@ -69,6 +69,6 @@ if __name__ == "__main__":
     print(reqs.get_loosened_requirements(filter=fin_packs))
     print("get flask packs: ")
     assert ["flask>=1.1.2", "tensorflow>=2.2.0", "boto3>=1.10.5"] == reqs.get_loosened_requirements(filter=extras_packages["flask"])
-    print(reqs.get_loosened_requirements(filter=extras_packages["matlab"]))
+    print(reqs.get_loosened_requirements(filter=extras_packages["flask"]))
     assert ["gmsh>=4.8.4", "pyvista>=0.24.2"] == reqs.get_loosened_requirements(filter=extras_packages["3d"])
     assert ["scipy>=1.4.1"] == reqs.get_loosened_requirements(filter=extras_packages["matlab"])
