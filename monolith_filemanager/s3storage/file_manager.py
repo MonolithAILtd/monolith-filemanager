@@ -125,6 +125,14 @@ class FileManager:
             return True
         except ClientError:
             return False
+        
+    def folder_exists(self, bucket_name, file_name) -> bool:
+        try:
+            if 'Contents' in self.client.list_objects(Bucket=bucket_name, Prefix=file_name, MaxKeys=1):
+                return True
+            return False
+        except ClientError:
+            return False
 
     def ls_folder(self, bucket_name: str, file_name: str) -> Tuple[dict, List[str]]:
         """
