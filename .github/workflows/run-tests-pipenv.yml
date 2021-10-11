@@ -16,4 +16,4 @@ jobs:
       - name: Install dependencies using pipenv
         run: pipenv install --dev
       - name: run tests
-        run: python -m unittest discover ./tests
+        run: pipenv run python -m pytest
