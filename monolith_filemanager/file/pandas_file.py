@@ -13,7 +13,7 @@ PandasLoadMethod = Union[pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_ta
 DataFrameType = Union[pd.DataFrame, dd.DataFrame]
 
 
-def dask_read_excel(path: str) -> dd.DataFrame:
+def dask_read_excel(path: str, **kwargs) -> dd.DataFrame:
     delayed_df = delayed(pd.read_excel)(path)
     return dd.from_delayed(delayed_df)
 
