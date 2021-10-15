@@ -13,7 +13,7 @@ PandasLoadMethod = Union[pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_ta
 DataFrameType = Union[pd.DataFrame, dd.DataFrame]
 
 
-def dask_read_excel(path: str) -> dd.DataFrame:
+def dask_read_excel(path: str, **kwargs) -> dd.DataFrame:
     delayed_df = delayed(pd.read_excel)(path)
     return dd.from_delayed(delayed_df)
 
@@ -52,7 +52,7 @@ class PandasFile(File):
         """
         super().__init__(path=path)
 
-    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '64MB', **kwargs) -> DataFrameType:
+    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '256MB', **kwargs) -> DataFrameType:
         """
         Gets data from file defined by file path.
 
@@ -60,7 +60,9 @@ class PandasFile(File):
         :param chunk_size: (dask compatible int or str) size in bytes of chunks to read. Only used if lazy == True
         :return: Data from file
         """
-        return self._read_dask(chunk_size, **kwargs) if lazy else self._read_dask(chunk_size, **kwargs).compute()
+        storage_options = {'config_kwargs': {'max_pool_connections': 32}}
+        return self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
+            else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
 
     def write(self, data: DataFrameType, repartition: bool = False, chunk_size: Union[int, str] = '64MB',
               cb: Optional[Callback] = None, **kwargs) -> None:
