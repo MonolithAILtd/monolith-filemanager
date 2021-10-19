@@ -46,7 +46,7 @@ setuptools.setup(
         "scipy>=1.6.0",
         "numpy>=1.16.4",
         "pandas>=0.25.1",
-        "pyvista>=0.29.0",
+        "pyvista>=0.24.2",
         "PyYAML>=5.3",
         "globre>=0.1.5",
         "dill>=0.2.8"
