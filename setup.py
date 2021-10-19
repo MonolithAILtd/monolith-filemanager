@@ -41,13 +41,13 @@ setuptools.setup(
     url="https://github.com/MonolithAILtd/monolith-filemanager",
     install_requires=[
         "gmsh>=4.5.6",
-        "h5py>=3.0.0",
-        "joblib>=1.0.0",
-        "scipy>=1.6.0",
+        "h5py>=2.10.0",
+        "joblib>=0.16.0",
+        "scipy>=1.4.1",
         "numpy>=1.16.4",
         "pandas>=0.25.1",
         "pyvista>=0.24.2",
-        "PyYAML>=5.3",
+        "PyYAML>=5.1.2",
         "globre>=0.1.5",
         "dill>=0.2.8"
     ],
