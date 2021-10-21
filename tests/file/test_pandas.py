@@ -13,7 +13,7 @@ from monolith_filemanager.file.pandas_file import PandasFile
 
 file_types = PandasFile.SUPPORTED_FORMATS
 CHUNK_SIZE = '256MB'
-STORAGE_OPTIONS = {'config_kwargs': {'max_pool_connections': 32}}
+STORAGE_OPTIONS = {'config_kwargs': {'max_pool_connections': 32}, 'skip_instance_cache': True}
 
 class TestPandasFile(TestCase):
     @classmethod
