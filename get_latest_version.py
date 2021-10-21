@@ -59,13 +59,14 @@ def pack_version_number(version_buffer: Union[Tuple[int, int, int], List[int]]) 
     return f"{version_buffer[0]}.{version_buffer[1]}.{version_buffer[2]}"
 
 
-def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int]], release_type: str = "patch") -> List[int]:
+def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int]], semantic_version: str = "patch") -> List[int]:
     """
-    Increases the number of the version based on the 'release_type' value in the release_type.yaml.
+    Increases the number of the version based on the 'release_type' value in the release_type.yaml
 
     Args:
-        version_buffer: (Union[Tuple[int, int, int], List[int]]) the verion to be increased
-        release_type: (str)
+        version_buffer: (Union[Tuple[int, int, int], List[int]]) the version to be increased
+        semantic_version: (str) the semantic version/release type e.g. patch, minor, major, defaults to patch
+                            if not recognised
 
     Returns: (List[int]) the updated version
     """
@@ -73,12 +74,12 @@ def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int
     second: int = version_buffer[1]
     third: int = version_buffer[2]
 
-    if release_type == "patch":
+    if semantic_version == "patch":
         third += 1
-    elif release_type == "minor":
+    elif semantic_version == "minor":
         second += 1
         third = 0
-    elif release_type == "major":
+    elif semantic_version == "major":
         first += 1
         second = 0
         third = 0
@@ -88,9 +89,10 @@ def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int
     return [first, second, third]
 
 
-def determine_relase_type():
+def determine_release_type() -> str:
     """
-
+    Read the 'release_type.yaml' file and parse for the 'release_type' key value. This should be amended accordingly
+    by the developer depending on the nature of the latest changes.
     """
     yml_path = str.encode(str(pathlib.Path(__file__).parent.absolute()) + "/release_type.yaml")
     raw_data = open(yml_path, 'rb')
@@ -100,13 +102,13 @@ def determine_relase_type():
 
 
 if __name__ == "__main__":
-    release_type = determine_relase_type()
+    release_type = determine_release_type()
     write_version_to_file(
         version_number=pack_version_number(
             version_buffer=increase_version_number(
                 version_buffer=unpack_version_number(
                     version_string=get_latest_version_number()
-                ), release_type=release_type
+                ), semantic_version=release_type
             )
         )
     )
