@@ -22,8 +22,9 @@ class CustomBuildPy(build_py_orig):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open(str(pathlib.Path(__file__).parent.absolute()) + "/monolith_filemanager/version.py", "r") as fh:
-    version = fh.read().split("=")[1].replace("'", "")
+#with open(str(pathlib.Path(__file__).parent.absolute()) + "/monolith_filemanager/version.py", "r") as fh:
+#    version = fh.read().split("=")[1].replace("'", "")
+version=0
 
 directives = {
     'language_level': 3,
