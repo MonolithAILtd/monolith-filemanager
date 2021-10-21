@@ -60,7 +60,7 @@ class PandasFile(File):
         :param chunk_size: (dask compatible int or str) size in bytes of chunks to read. Only used if lazy == True
         :return: Data from file
         """
-        storage_options = {'config_kwargs': {'max_pool_connections': 32}}
+        storage_options = {'config_kwargs': {'max_pool_connections': 32}, 'skip_instance_cache': True}
         return self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
             else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
 
