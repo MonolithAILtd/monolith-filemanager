@@ -29,7 +29,7 @@ def write_version_to_file(version_number: str) -> None:
 
     if os.path.exists(version_file_path):
         os.remove(version_file_path)
-    print(f"version number: {version_number}")
+
     with open(version_file_path, "w") as f:
         f.write(f"VERSION='{version_number}'")
 
@@ -59,7 +59,8 @@ def pack_version_number(version_buffer: Union[Tuple[int, int, int], List[int]]) 
     return f"{version_buffer[0]}.{version_buffer[1]}.{version_buffer[2]}"
 
 
-def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int]], semantic_version: str = "patch") -> List[int]:
+def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int]], semantic_version: str = "patch") \
+        -> List[int]:
     """
     Increases the number of the version based on the 'release_type' value in the release_type.yaml
 
