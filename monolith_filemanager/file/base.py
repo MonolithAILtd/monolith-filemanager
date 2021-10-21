@@ -31,7 +31,7 @@ class File(ABC):
         pass
 
     @abstractmethod
-    def write(self, data) -> None:
+    def write(self, data, **kwargs) -> None:
         pass
 
     @staticmethod

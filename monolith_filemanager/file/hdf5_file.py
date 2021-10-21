@@ -30,7 +30,7 @@ class Hdf5File(File):
         h5 = h5py.File(self.path, mode='r')
         return h5
 
-    def write(self, data: Any) -> Exception:
+    def write(self, data: Any, **kwargs) -> Exception:
         """
         Writes data to file (WARNING: not supported, raises exception).
 

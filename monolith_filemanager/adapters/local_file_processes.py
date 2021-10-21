@@ -26,7 +26,7 @@ class LocalFileProcessesAdapter(Base):
         :param file_path: (str) path to the file concerned
         """
         super().__init__(file_path=file_path)
-        self.python_path: str = str(os.environ.get("PYTHONPATH").split(":")[0])
+        self.python_path: str = str(os.environ.get("PYTHONPATH", "").split(":")[0])
 
     @staticmethod
     def check_local_file(path: FilePath) -> None:
@@ -60,7 +60,8 @@ class LocalFileProcessesAdapter(Base):
             from flask import send_from_directory
         except ImportError:
             raise FileManagerError(
-                message=f"exporting file relies of the Flask module, to install the correct version run the command: file-install-flask"
+                message=f"exporting file relies on the Flask module. "
+                        f"To install the correct version run the command: `file-install-flask`."
             )
         self.check_local_file(path=self.path)
         full_path = self.python_path + "/" + self.path.root
@@ -95,7 +96,7 @@ class LocalFileProcessesAdapter(Base):
         self.check_local_file(path=self.path)
         return custom_read_function(self.path)
 
-    def write_file(self, data):
+    def write_file(self, data, **kwargs):
         """
         Writes data to file.
 
@@ -103,7 +104,7 @@ class LocalFileProcessesAdapter(Base):
         :return: None
         """
         self._create_directory_if_not_exists()
-        self.local_file_object().write(data=data)
+        self.local_file_object().write(data=data, **kwargs)
 
     def write_raw_file(self, data):
         """
@@ -362,7 +363,6 @@ class LocalFileProcessesAdapter(Base):
             if os.path.isfile(existing_path):
                 self.path = f"{self.path}/{path}"
                 self.move_file(destination_folder=destination_folder)
-            # elif os.path.isdir(existing_path):
             else:
                 self.path = f"{self.path}/{path}"
                 self.move_folder(destination_folder=destination_folder)

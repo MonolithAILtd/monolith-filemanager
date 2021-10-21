@@ -13,15 +13,18 @@ class TestS3ProcessesAdapter(TestCase):
         self.test_folder = S3ProcessesAdapter(file_path="mock/folder/path")
         self.test_folder.path = "mock/folder/path"
 
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter._strip_path_slash")
     @patch("monolith_filemanager.adapters.s3_processes.V1Engine")
     @patch("monolith_filemanager.adapters.s3_processes.Base.__init__")
-    def test___init__(self, mock_init, mock_engine):
+    def test___init__(self, mock_init, mock_engine, mock_strip_path_slash):
         mock_init.return_value = None
+        mock_strip_path_slash.return_value = None
         test = S3ProcessesAdapter(file_path="test")
 
         mock_init.assert_called_once_with(file_path="test")
         mock_engine.assert_called_once_with()
         self.assertEqual(mock_engine.return_value, test._engine)
+        mock_strip_path_slash.assert_called_once_with()
 
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
     def test_local_file_object(self, mock_init):
@@ -348,16 +351,27 @@ class TestS3ProcessesAdapter(TestCase):
         mock_filepath2 = MagicMock()
         mock_filepath2.to_string.return_value = f"{mock_destination_folder}/{mock_paths[1]}"
         mock_filepath2.get_file_type.return_value = None
-        mock_filepath.side_effect = [mock_filepath1, mock_filepath2]
+        mock_filepath.side_effect = [mock_filepath1, None, mock_filepath2, None]
 
         mock_move_file.return_value = None
         mock_move_folder.return_value = None
 
         self.test_folder.batch_move(paths=mock_paths, destination_folder=mock_destination_folder)
         mock_filepath.assert_has_calls([call(f"{mock_destination_folder}/{mock_paths[0]}"),
-                                        call(f"{mock_destination_folder}/{mock_paths[1]}")])
+                                        call(f"{self.test_folder.path}/{mock_paths[0]}"),
+                                        call(f"{mock_destination_folder}/{mock_paths[1]}"),
+                                        call(f"{self.test_folder.path}/{mock_paths[1]}")])
         mock_move_file.assert_called_once_with(destination_folder=mock_destination_folder)
         mock_move_folder.assert_called_once_with(destination_folder=mock_destination_folder)
+
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
+    def test__strip_path_slash(self, mock_init):
+        mock_init.return_value = None
+        mock_path = "mock/folder/path/"
+        test_folder = S3ProcessesAdapter(file_path=mock_path)
+        test_folder.path = mock_path
+        test_folder._strip_path_slash()
+        self.assertEqual(mock_path.rstrip("/"), test_folder.path)
 
 
 if __name__ == "__main__":

@@ -52,7 +52,9 @@ setuptools.setup(
         "dill>=0.2.8"
     ],
     extras_require={
-     'flask': ["Flask>=1.0.0", "tensorflow>=2.1.0", "boto3>=1.16.43"]
+        'flask': ["Flask>=1.0.0", "tensorflow>=2.2.0", "boto3>=1.16.43"],
+        '3d': ["pyvista>=0.24.2", "gmsh>=4.5.6"],
+        'matlab': ["scipy>=1.4.1"]
     },
     packages=find_packages(exclude=("tests",)),
     classifiers=[

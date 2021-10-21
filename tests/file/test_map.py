@@ -1,11 +1,18 @@
 from unittest import TestCase, main
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, call
 from monolith_filemanager.file import FileMap, Singleton
 
 
 class TestFileMap(TestCase):
 
-    def test___init__(self):
+    def setUp(self):
+        Singleton._instances = {}
+
+    def tearDown(self):
+        Singleton._instances = {}
+
+    @patch("monolith_filemanager.file.FileMap.init_bindings")
+    def test___init__(self, mock_init_bindings):
         test = FileMap()
         test_two = FileMap()
 
@@ -13,14 +20,18 @@ class TestFileMap(TestCase):
 
         test["one"] = 1
         self.assertEqual(test, test_two)
+        mock_init_bindings.assert_called_once_with()
 
         test = FileMap()
         Singleton._instances = {}
         test_two = FileMap()
         self.assertNotEqual(id(test), id(test_two))
         Singleton._instances = {}
+        mock_init_bindings.assert_has_calls = [call(), call()]
 
-    def test_add_binding(self):
+    @patch("monolith_filemanager.file.FileMap.__init__")
+    def test_add_binding(self, mock_init):
+        mock_init.return_value = None
         test = FileMap()
         mock_file_object = MagicMock()
         mock_file_object.SUPPORTED_FORMATS = ["csv", "txt"]
