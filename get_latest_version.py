@@ -61,10 +61,11 @@ def pack_version_number(version_buffer: Union[Tuple[int, int, int], List[int]]) 
 
 def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int]], release_type: str = "patch") -> List[int]:
     """
-    Increases the number of the version based on the
+    Increases the number of the version based on the 'release_type' value in the release_type.yaml.
 
     Args:
         version_buffer: (Union[Tuple[int, int, int], List[int]]) the verion to be increased
+        release_type: (str)
 
     Returns: (List[int]) the updated version
     """
