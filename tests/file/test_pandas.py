@@ -70,7 +70,7 @@ class TestPandasFile(TestCase):
 
         mock_map.assert_called_once()
         assert_eq(mock_map.call_args[1]['data'], test_data_dask, check_divisions=False)
-        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
+        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'}, storage_options = {'skip_instance_cache': True})
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
@@ -93,7 +93,7 @@ class TestPandasFile(TestCase):
 
         mock_map.assert_called_once()
         assert_eq(mock_map.call_args[1]['data'], test_data_dask, check_divisions=False)
-        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
+        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'}, storage_options = {'skip_instance_cache': True})
 
         cb.__enter__.assert_called_once()
         cb.__exit__.assert_called_once()
