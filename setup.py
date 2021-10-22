@@ -42,7 +42,7 @@ setuptools.setup(
     install_requires=[
         "gmsh>=4.5.6",
         "h5py>=2.10.0",
-        "joblib>=0.16.0",
+        "joblib>=0.15.0",
         "scipy>=1.4.1",
         "numpy>=1.16.4",
         "pandas>=0.25.1",

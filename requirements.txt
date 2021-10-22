@@ -1,6 +1,6 @@
 tensorflow==2.2.0
 scipy==1.4.1
-joblib==0.16.0
+joblib==0.15.0
 botocore==1.13.5
 Flask==1.1.2
 numpy==1.16.4
