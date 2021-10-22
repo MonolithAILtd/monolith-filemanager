@@ -85,6 +85,14 @@ class TestFileManager(TestCase):
 
         test.client.head_object.assert_called_once_with(Bucket="test-bucket", Key="test.txt")
 
+    def test_folder_exists(self):
+        test = FileManager()
+        test.client = MagicMock()
+
+        test.folder_exists(bucket_name="test-bucket", file_name="test.txt")
+
+        test.client.list_objects.assert_called_once_with(Bucket="test-bucket", Prefix="test.txt", MaxKeys=1)
+
     def test_ls_folder(self):
         test = FileManager()
         test.client = MagicMock()

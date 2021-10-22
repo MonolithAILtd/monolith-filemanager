@@ -1,10 +1,10 @@
-import itertools
 from unittest import TestCase, main
 from unittest.mock import patch, MagicMock, call
+
 from monolith_filemanager.adapters.local_file_processes import LocalFileProcessesAdapter, LocalProcessesAdapterError
 
 
-class TestLocalFileProcessesAdapter(TestCase):
+class TestLocalFileProcessesAdapterWithoutInit(TestCase):
 
     @patch("monolith_filemanager.adapters.local_file_processes.LocalFileProcessesAdapter.__init__")
     def setUp(self, mock_init) -> None:
@@ -14,6 +14,24 @@ class TestLocalFileProcessesAdapter(TestCase):
         self.test_folder.path = "mock/folder/path"
         self.test_file = LocalFileProcessesAdapter(file_path="mock/folder/test.xlsx", caching=MagicMock())
         self.test_file.path = "mock/folder/test.xlsx"
+
+    @patch("monolith_filemanager.adapters.local_file_processes.os.environ", {"PYTHONPATH": "mock/python/path"})
+    def test___init__local(self):
+        mock_path = "mock/folder/path"
+        obj = LocalFileProcessesAdapter(file_path=mock_path)
+        self.assertIsInstance(obj, LocalFileProcessesAdapter)
+        self.assertEqual(obj.path, mock_path)
+        self.assertEqual(obj._s3, False)
+        self.assertEqual(obj.python_path, "mock/python/path")
+
+    @patch("monolith_filemanager.adapters.local_file_processes.os.environ", {})
+    def test___init__local_missing_pythonpath(self):
+        mock_path = "mock/folder/path"
+        obj = LocalFileProcessesAdapter(file_path=mock_path)
+        self.assertIsInstance(obj, LocalFileProcessesAdapter)
+        self.assertEqual(obj.path, mock_path)
+        self.assertEqual(obj._s3, False)
+        self.assertEqual(obj.python_path, "")
 
     def test_check_local_file(self):
         mock_path = MagicMock()

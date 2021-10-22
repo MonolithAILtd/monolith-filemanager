@@ -22,7 +22,6 @@ class Base(ABC):
         """
         self.path: FilePath = file_path
         self.file_types: FileMap = FileMap()
-        self.file_types.init_bindings()
         self._s3: bool = False
         self.config: Optional[str] = None
 
@@ -58,7 +57,7 @@ class Base(ABC):
         pass
 
     @abstractmethod
-    def write_file(self, data) -> None:
+    def write_file(self, data, **kwargs) -> None:
         """
         Placeholder for writing data to a file.
 

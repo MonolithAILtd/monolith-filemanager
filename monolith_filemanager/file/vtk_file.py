@@ -1,9 +1,9 @@
 from typing import Union, Any
 
 import numpy as np
-import pyvista as pv
 
 from .base import File
+from .errors import VTKFileError
 from ..path import FilePath
 
 
@@ -26,9 +26,16 @@ class VtkFile(File):
 
         :return: (Any) data from file
         """
-        return expand_3d_point_arrays(pv.read(self.path))
+        try:
+            from pyvista import read as pv_read
+        except ImportError:
+            raise VTKFileError(
+                message="loading a vtk file relies on the vtk module. Please install this module and try again."
+            )
 
-    def write(self, data: Any) -> None:
+        return expand_3d_point_arrays(pv_read(self.path))
+
+    def write(self, data: Any, **kwargs) -> None:
         """
         Writes data to file.
         :param data: (python object) data to be written to file
@@ -37,7 +44,7 @@ class VtkFile(File):
         data.save(self.path)
 
 
-def expand_3d_point_arrays(mesh: pv.PolyData) -> pv.PolyData:
+def expand_3d_point_arrays(mesh):
     """
     Helper function for expanding 3D point surfaces into 1D point surfaces and a magnitude vector.
     @param mesh:  (pv.PolyData) input mesh to expand

@@ -41,18 +41,20 @@ setuptools.setup(
     url="https://github.com/MonolithAILtd/monolith-filemanager",
     install_requires=[
         "gmsh>=4.5.6",
-        "h5py>=3.0.0",
-        "joblib>=1.0.0",
-        "scipy>=1.6.0",
-        "numpy>=1.19.0",
-        "pandas>=1.1.5",
-        "pyvista>=0.29.0",
-        "PyYAML>=5.3",
+        "h5py>=2.10.0",
+        "joblib>=0.15.0",
+        "scipy>=1.4.1",
+        "numpy>=1.16.4",
+        "pandas>=0.25.1",
+        "pyvista>=0.24.2",
+        "PyYAML>=5.1.2",
         "globre>=0.1.5",
         "dill>=0.2.8"
     ],
     extras_require={
-     'flask': ["Flask>=1.0.0", "tensorflow>=2.1.0", "boto3>=1.16.43"]
+        'flask': ["Flask>=1.0.0", "tensorflow>=2.2.0", "boto3>=1.16.43"],
+        '3d': ["pyvista>=0.24.2", "gmsh>=4.5.6"],
+        'matlab': ["scipy>=1.4.1"]
     },
     packages=find_packages(exclude=("tests",)),
     classifiers=[

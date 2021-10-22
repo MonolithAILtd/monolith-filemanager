@@ -31,7 +31,7 @@ class StandardPickleFile(File):
             loaded_data = pickle.load(file)
         return loaded_data
 
-    def write(self, data: Any) -> None:
+    def write(self, data: Any, **kwargs) -> None:
         """
         Writes data to a pickle file.
 
