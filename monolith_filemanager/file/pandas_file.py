@@ -93,12 +93,13 @@ class PandasFile(File):
 
     def _write_functions(self, data) -> None:
         if self.path.file_type in ('xls', 'xlsx'):
-            self._map_write_functions(data=data)(self.path)
+            self._map_write_functions(data=data)(self.path, storage_options = {'skip_instance_cache': True})
         elif self.path.file_type in ('csv', 'dat', 'data'):
             self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'},
-                                                 single_file=True)
+                                                 single_file=True, storage_options = {'skip_instance_cache': True})
         else:
-            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
+            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'},
+                                                 storage_options = {'skip_instance_cache': True})
 
     def _map_write_functions(self, data: dd.DataFrame) -> PandasLoadMethod:
         """
