@@ -190,6 +190,15 @@ The module supports the following extensions:
 - vtk
 - yml
 
+# Versioning
+In line with the 'semantic versioning' workflow, the release type can now be specified for each merge and publish 
+on to PyPi. The `release_type.yaml` has the following format and must be amended by the developer accordingly in order
+to update the package version number:
+```yaml
+# Must be one of either: patch, minor or major
+release_type: "minor"
+```
+
 # Contributing 
 This repo is still fairly new so contributing will require some communication. 
 You can contact with ideas and outline for a feature at ```maxwell@monolithai.com```.
