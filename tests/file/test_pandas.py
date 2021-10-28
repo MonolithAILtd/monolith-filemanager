@@ -44,7 +44,7 @@ class TestPandasFile(TestCase):
         test.path = MagicMock()
         test.path.file_type = "csv"
         test_input = MagicMock()
-        out_come = test._map_write_functions(data=test_input)
+        out_come = test._map_write_functions(data=test_input, scheduler='test_scheduler')
 
         self.assertEqual(test_input.to_csv, out_come)
         self.assertEqual(test_input.to_csv("test path"), out_come("test path"))
@@ -59,7 +59,7 @@ class TestPandasFile(TestCase):
         test_data = pd.DataFrame([{"one": 1, "two": 2}, {"one": 1, "two": 2}])
         test_data_dask = dd.from_pandas(test_data, npartitions=1)
 
-        test.write(data=test_data, repartition=False)
+        test.write(data=test_data, repartition=False, scheduler='test_scheduler')
 
         with self.assertRaises(Exception):
             test.write(data="test")
@@ -70,7 +70,7 @@ class TestPandasFile(TestCase):
 
         mock_map.assert_called_once()
         assert_eq(mock_map.call_args[1]['data'], test_data_dask, check_divisions=False)
-        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
+        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'test_scheduler'})
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)

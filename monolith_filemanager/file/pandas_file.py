@@ -65,13 +65,15 @@ class PandasFile(File):
             else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
 
     def write(self, data: DataFrameType, repartition: bool = False, chunk_size: Union[int, str] = '64MB',
-              cb: Optional[Callback] = None, **kwargs) -> None:
+              scheduler: str = 'threads', cb: Optional[Callback] = None, **kwargs) -> None:
         """
         Writes data to file.
 
         :param data: (pandas or dask data frame) data to be written to file
         :param repartition: (bool) whether or not to repartition the dataframe to a given chunk size. Default to False.
         :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
+        :param scheduler: (str) Dask local scheduler type to use for computation.
+            Choose from "threads", "single-threaded", or "processes"
         :param cb: (optional dask Callback) A dask-compatible callback for updates during computation of the dask graph.
         :return: None
         """
@@ -86,21 +88,23 @@ class PandasFile(File):
             data = data.repartition(partition_size=chunk_size)
 
         if cb is None:
-            self._write_functions(data)
+            self._write_functions(data, scheduler=scheduler)
         else:
             with cb:
-                self._write_functions(data)
+                self._write_functions(data, scheduler=scheduler)
 
-    def _write_functions(self, data) -> None:
+    def _write_functions(self, data, scheduler) -> None:
         if self.path.file_type in ('xls', 'xlsx'):
-            self._map_write_functions(data=data)(self.path)
+            self._map_write_functions(data=data, scheduler=scheduler)(self.path)
         elif self.path.file_type in ('csv', 'dat', 'data'):
-            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'},
-                                                 single_file=True)
+            self._map_write_functions(data=data, scheduler=scheduler)(self.path,
+                                                                      compute_kwargs={'scheduler': scheduler},
+                                                                      single_file=True)
         else:
-            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
+            self._map_write_functions(data=data, scheduler=scheduler)(self.path,
+                                                                      compute_kwargs={'scheduler': scheduler})
 
-    def _map_write_functions(self, data: dd.DataFrame) -> PandasLoadMethod:
+    def _map_write_functions(self, data: dd.DataFrame, scheduler) -> PandasLoadMethod:
         """
         Maps the write function depending on the file type from self.path (hidden file).
 
@@ -110,8 +114,8 @@ class PandasFile(File):
         function_map = {
             "parquet": data.to_parquet,
             "csv": data.to_csv,
-            "xls": data.compute(scheduler='threads').to_excel,
-            "xlsx": data.compute(scheduler='threads').to_excel,
+            "xls": data.compute(scheduler=scheduler).to_excel,
+            "xlsx": data.compute(scheduler=scheduler).to_excel,
             "dat": data.to_csv,
             "data": data.to_csv
         }
