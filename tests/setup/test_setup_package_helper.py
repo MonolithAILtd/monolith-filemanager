@@ -2,6 +2,7 @@ from unittest import TestCase
 
 from tests.setup.copy_requirements_manager import RequirementsManager
 
+
 extras_packages = {
     "flask": ["flask", "tensorflow", "boto3"],
     "3d": ["pyvista", "gmsh"],
