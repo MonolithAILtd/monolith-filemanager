@@ -1,6 +1,11 @@
 from typing import List, Dict
 
 
+"""
+Ensure the below class is copy and pasted from setup.py whenever alterations are made in that file
+"""
+
+
 class RequirementsManager:
     """
     Class to manage reading the Pipfile and converting it into a correctly formatted list of strings for use in the
