@@ -106,9 +106,33 @@ class TestV1Engine(TestCase):
         mock_delete_file.assert_called_once_with(bucket_name='this', file_name='is/a/path.txt')
 
     @patch("monolith_filemanager.s3storage.FileManager.file_exists")
-    def test_exists(self, mock_exists):
-        self.test.exists(storage_path="s3://this/is/a/path.txt")
-        mock_exists.assert_called_once_with(bucket_name='this', file_name='is/a/path.txt')
+    @patch("monolith_filemanager.s3storage.FileManager.folder_exists")
+    def test_file_exists(self, mock_folder_exists, mock_file_exists):
+        mock_file_exists.return_value = True
+        mock_folder_exists.return_value = False
+        exists = self.test.exists(storage_path="s3://this/is/a/path.txt")
+        mock_file_exists.assert_called_once_with(bucket_name='this', file_name='is/a/path.txt')
+        self.assertTrue(exists)
+
+    @patch("monolith_filemanager.s3storage.FileManager.file_exists")
+    @patch("monolith_filemanager.s3storage.FileManager.folder_exists")
+    def test_folder_exists(self, mock_folder_exists, mock_file_exists):
+        mock_file_exists.return_value = False
+        mock_folder_exists.return_value = True
+        exists = self.test.exists(storage_path="s3://this/is/a/path.txt")
+        mock_file_exists.assert_called_once_with(bucket_name='this', file_name='is/a/path.txt')
+        mock_folder_exists.assert_called_once_with(bucket_name='this', file_name='is/a/path.txt')
+        self.assertTrue(exists)
+
+    @patch("monolith_filemanager.s3storage.FileManager.file_exists")
+    @patch("monolith_filemanager.s3storage.FileManager.folder_exists")
+    def test_neither_file_or_folder_exists(self, mock_folder_exists, mock_file_exists):
+        mock_file_exists.return_value = False
+        mock_folder_exists.return_value = False
+        exists = self.test.exists(storage_path="s3://this/is/a/path.txt")
+        mock_file_exists.assert_called_once_with(bucket_name='this', file_name='is/a/path.txt')
+        mock_folder_exists.assert_called_once_with(bucket_name='this', file_name='is/a/path.txt')
+        self.assertFalse(exists)
 
     @patch("monolith_filemanager.s3storage.FileManager.ls_folder")
     def test_ls(self, mock_ls):

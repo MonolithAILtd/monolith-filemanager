@@ -13,7 +13,7 @@ PandasLoadMethod = Union[pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_ta
 DataFrameType = Union[pd.DataFrame, dd.DataFrame]
 
 
-def dask_read_excel(path: str) -> dd.DataFrame:
+def dask_read_excel(path: str, **kwargs) -> dd.DataFrame:
     delayed_df = delayed(pd.read_excel)(path)
     return dd.from_delayed(delayed_df)
 
@@ -52,7 +52,7 @@ class PandasFile(File):
         """
         super().__init__(path=path)
 
-    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '64MB', **kwargs) -> DataFrameType:
+    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '256MB', **kwargs) -> DataFrameType:
         """
         Gets data from file defined by file path.
 
@@ -60,16 +60,20 @@ class PandasFile(File):
         :param chunk_size: (dask compatible int or str) size in bytes of chunks to read. Only used if lazy == True
         :return: Data from file
         """
-        return self._read_dask(chunk_size, **kwargs) if lazy else self._read_dask(chunk_size, **kwargs).compute()
+        storage_options = {'config_kwargs': {'max_pool_connections': 32}, 'skip_instance_cache': True}
+        return self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
+            else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
 
     def write(self, data: DataFrameType, repartition: bool = False, chunk_size: Union[int, str] = '64MB',
-              cb: Optional[Callback] = None, **kwargs) -> None:
+              scheduler: str = 'threads', cb: Optional[Callback] = None, **kwargs) -> None:
         """
         Writes data to file.
 
         :param data: (pandas or dask data frame) data to be written to file
         :param repartition: (bool) whether or not to repartition the dataframe to a given chunk size. Default to False.
         :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
+        :param scheduler: (str) Dask local scheduler type to use for computation.
+            Choose from "threads", "single-threaded", or "processes"
         :param cb: (optional dask Callback) A dask-compatible callback for updates during computation of the dask graph.
         :return: None
         """
@@ -84,21 +88,23 @@ class PandasFile(File):
             data = data.repartition(partition_size=chunk_size)
 
         if cb is None:
-            self._write_functions(data)
+            self._write_functions(data, scheduler=scheduler)
         else:
             with cb:
-                self._write_functions(data)
+                self._write_functions(data, scheduler=scheduler)
 
-    def _write_functions(self, data) -> None:
+    def _write_functions(self, data, scheduler) -> None:
         if self.path.file_type in ('xls', 'xlsx'):
-            self._map_write_functions(data=data)(self.path)
+            self._map_write_functions(data=data, scheduler=scheduler)(self.path)
         elif self.path.file_type in ('csv', 'dat', 'data'):
-            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'},
-                                                 single_file=True)
+            self._map_write_functions(data=data, scheduler=scheduler)(self.path,
+                                                                      compute_kwargs={'scheduler': scheduler},
+                                                                      single_file=True)
         else:
-            self._map_write_functions(data=data)(self.path, compute_kwargs={'scheduler': 'threads'})
+            self._map_write_functions(data=data, scheduler=scheduler)(self.path,
+                                                                      compute_kwargs={'scheduler': scheduler})
 
-    def _map_write_functions(self, data: dd.DataFrame) -> PandasLoadMethod:
+    def _map_write_functions(self, data: dd.DataFrame, scheduler) -> PandasLoadMethod:
         """
         Maps the write function depending on the file type from self.path (hidden file).
 
@@ -108,8 +114,8 @@ class PandasFile(File):
         function_map = {
             "parquet": data.to_parquet,
             "csv": data.to_csv,
-            "xls": data.compute(scheduler='threads').to_excel,
-            "xlsx": data.compute(scheduler='threads').to_excel,
+            "xls": data.compute(scheduler=scheduler).to_excel,
+            "xlsx": data.compute(scheduler=scheduler).to_excel,
             "dat": data.to_csv,
             "data": data.to_csv
         }

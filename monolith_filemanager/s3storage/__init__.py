@@ -142,7 +142,11 @@ class V1Engine(BucketManager, FileManager):
         :return: (bool) True if path exists, False if not
         """
         bucket, file_name, short_file_name = V1Engine._split_s3_path(storage_path)
-        return self.file_exists(bucket_name=bucket, file_name=file_name)
+        if self.file_exists(bucket_name=bucket, file_name=file_name):
+            return True
+        if self.folder_exists(bucket_name=bucket, file_name=file_name):
+            return True
+        return False
 
     def ls(self, storage_path: Union[FilePath, str]) -> Tuple[dict, List[str]]:
         """

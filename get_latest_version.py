@@ -2,6 +2,7 @@ import os
 import pathlib
 from typing import Tuple, List, Union
 
+import yaml
 import requests
 
 
@@ -17,7 +18,7 @@ def get_latest_version_number() -> str:
 
 def write_version_to_file(version_number: str) -> None:
     """
-    Writes the version to the VERSION.txt file.
+    Writes the version to the VERSION.py file.
 
     Args:
         version_number: (str) the version to be written to the file
@@ -58,12 +59,15 @@ def pack_version_number(version_buffer: Union[Tuple[int, int, int], List[int]]) 
     return f"{version_buffer[0]}.{version_buffer[1]}.{version_buffer[2]}"
 
 
-def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int]]) -> List[int]:
+def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int]], semantic_version: str = "patch") \
+        -> List[int]:
     """
-    Increases the number of the version with an increment of 0.0.1.
+    Increases the number of the version based on the 'release_type' value in the release_type.yaml
 
     Args:
-        version_buffer: (Union[Tuple[int, int, int], List[int]]) the verion to be increased
+        version_buffer: (Union[Tuple[int, int, int], List[int]]) the version to be increased
+        semantic_version: (str) the semantic version/release type e.g. patch, minor, major, defaults to patch
+                            if not recognised
 
     Returns: (List[int]) the updated version
     """
@@ -71,25 +75,41 @@ def increase_version_number(version_buffer: Union[Tuple[int, int, int], List[int
     second: int = version_buffer[1]
     third: int = version_buffer[2]
 
-    third += 1
-    if third >= 10:
-        third = 0
+    if semantic_version == "patch":
+        third += 1
+    elif semantic_version == "minor":
         second += 1
-        if second >= 10:
-            second = 0
-            first += 1
+        third = 0
+    elif semantic_version == "major":
+        first += 1
+        second = 0
+        third = 0
+    else:
+        third += 1
 
     return [first, second, third]
 
 
-if __name__ == "__main__":
+def determine_release_type() -> str:
+    """
+    Read the 'release_type.yaml' file and parse for the 'release_type' key value. This should be amended accordingly
+    by the developer depending on the nature of the latest changes.
+    """
+    yml_path = str.encode(str(pathlib.Path(__file__).parent.absolute()) + "/release_type.yaml")
+    raw_data = open(yml_path, 'rb')
+    loaded_data = yaml.load(raw_data, Loader=yaml.FullLoader)
+    raw_data.close()
+    return loaded_data['release_type']
 
+
+if __name__ == "__main__":
+    release_type = determine_release_type()
     write_version_to_file(
         version_number=pack_version_number(
             version_buffer=increase_version_number(
                 version_buffer=unpack_version_number(
                     version_string=get_latest_version_number()
-                )
+                ), semantic_version=release_type
             )
         )
     )
