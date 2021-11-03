@@ -64,19 +64,36 @@ class PandasFile(File):
         return self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
             else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
 
-    def write(self, data: DataFrameType, repartition: bool = False, chunk_size: Union[int, str] = '64MB',
+    def write(self, data: DataFrameType, repartition: bool = False, divisions: Union[int, str] = '64MB',
               scheduler: str = 'threads', cb: Optional[Callback] = None, **kwargs) -> None:
         """
         Writes data to file.
 
         :param data: (pandas or dask data frame) data to be written to file
         :param repartition: (bool) whether or not to repartition the dataframe to a given chunk size. Default to False.
-        :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
+        :param divisions: (int or str) dask-compatible maximum partition size.
+                                    Interpreted as number of bytes if str, or number of divisions if int.
         :param scheduler: (str) Dask local scheduler type to use for computation.
             Choose from "threads", "single-threaded", or "processes"
         :param cb: (optional dask Callback) A dask-compatible callback for updates during computation of the dask graph.
         :return: None
         """
+
+        def _write_functions(df, path):
+            """
+            Local function for mapping file type to correct write method.
+            Important that this function is defined within the outer function scope in order to avoid issues with
+            Dask callbacks.
+            """
+            if path.file_type in ('xls', 'xlsx'):
+                df.compute(scheduler=scheduler).to_excel(path),
+            elif path.file_type in ('csv', 'dat', 'data'):
+                df.to_csv(path, compute_kwargs={'scheduler': scheduler}, single_file=True)
+            elif path.file_type in ('parquet',):
+                df.to_parquet(path, compute_kwargs={'scheduler': scheduler})
+            else:
+                raise ValueError(f'Failed writing dataframe to file. File type {path.file_type} not known.')
+
         if not isinstance(data, (pd.DataFrame, dd.DataFrame)):
             raise PandasFileError(message=f'Data passed to write method isn\'t a pandas or dask DataFrame. '
                                           f'Please use a DataFrame for {self.DASK_SUPPORTED_FORMATS}')
@@ -85,41 +102,13 @@ class PandasFile(File):
             data = dd.from_pandas(data, npartitions=1, sort=False)
 
         if repartition:
-            data = data.repartition(partition_size=chunk_size)
+            data = data.repartition(divisions=divisions)
 
         if cb is None:
-            self._write_functions(data, scheduler=scheduler)
+            _write_functions(data, self.path)
         else:
             with cb:
-                self._write_functions(data, scheduler=scheduler)
-
-    def _write_functions(self, data, scheduler) -> None:
-        if self.path.file_type in ('xls', 'xlsx'):
-            self._map_write_functions(data=data, scheduler=scheduler)(self.path)
-        elif self.path.file_type in ('csv', 'dat', 'data'):
-            self._map_write_functions(data=data, scheduler=scheduler)(self.path,
-                                                                      compute_kwargs={'scheduler': scheduler},
-                                                                      single_file=True)
-        else:
-            self._map_write_functions(data=data, scheduler=scheduler)(self.path,
-                                                                      compute_kwargs={'scheduler': scheduler})
-
-    def _map_write_functions(self, data: dd.DataFrame, scheduler) -> PandasLoadMethod:
-        """
-        Maps the write function depending on the file type from self.path (hidden file).
-
-        :param data: (pandas data frame) data to be written to file
-        :return: (PandasLoadMethod) a pandas read method ready to be used
-        """
-        function_map = {
-            "parquet": data.to_parquet,
-            "csv": data.to_csv,
-            "xls": data.compute(scheduler=scheduler).to_excel,
-            "xlsx": data.compute(scheduler=scheduler).to_excel,
-            "dat": data.to_csv,
-            "data": data.to_csv
-        }
-        return function_map[self.path.file_type]
+                _write_functions(data, self.path)
 
     def _read_dask(self, chunk_size: Union[int, str], **kwargs) -> dd.DataFrame:
         """
@@ -133,7 +122,7 @@ class PandasFile(File):
 
         if self.path.file_type in ('xls', 'xlsx'):
             return self.DASK_LOADING_METHODS[self.path.file_type](self.path, **kwargs)
-        elif self.path.file_type in ('parquet'):
+        elif self.path.file_type in ('parquet',):
             return self.DASK_LOADING_METHODS[self.path.file_type](self.path, chunksize=chunk_size, **kwargs)
 
         return self.DASK_LOADING_METHODS[self.path.file_type](self.path, blocksize=chunk_size, **kwargs)
