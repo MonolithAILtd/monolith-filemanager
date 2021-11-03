@@ -79,21 +79,6 @@ class PandasFile(File):
         :return: None
         """
 
-        def _write_functions(df, path):
-            """
-            Local function for mapping file type to correct write method.
-            Important that this function is defined within the outer function scope in order to avoid issues with
-            Dask callbacks.
-            """
-            if path.file_type in ('xls', 'xlsx'):
-                df.compute(scheduler=scheduler).to_excel(path),
-            elif path.file_type in ('csv', 'dat', 'data'):
-                df.to_csv(path, compute_kwargs={'scheduler': scheduler}, single_file=True)
-            elif path.file_type in ('parquet',):
-                df.to_parquet(path, compute_kwargs={'scheduler': scheduler})
-            else:
-                raise ValueError(f'Failed writing dataframe to file. File type {path.file_type} not known.')
-
         if not isinstance(data, (pd.DataFrame, dd.DataFrame)):
             raise PandasFileError(message=f'Data passed to write method isn\'t a pandas or dask DataFrame. '
                                           f'Please use a DataFrame for {self.DASK_SUPPORTED_FORMATS}')
@@ -105,10 +90,22 @@ class PandasFile(File):
             data = data.repartition(divisions=divisions)
 
         if cb is None:
-            _write_functions(data, self.path)
+            self._write_functions(data, self.path, scheduler)
         else:
             with cb:
-                _write_functions(data, self.path)
+                self._write_functions(data, self.path, scheduler)
+
+    @staticmethod
+    def _write_functions(df, path, scheduler):
+        """ Function for mapping file type to correct write method. """
+        if path.file_type in ('xls', 'xlsx'):
+            df.compute(scheduler=scheduler).to_excel(path),
+        elif path.file_type in ('csv', 'dat', 'data'):
+            df.to_csv(path, compute_kwargs={'scheduler': scheduler}, single_file=True)
+        elif path.file_type in ('parquet',):
+            df.to_parquet(path, compute_kwargs={'scheduler': scheduler})
+        else:
+            raise ValueError(f'Failed writing dataframe to file. File type {path.file_type} not known.')
 
     def _read_dask(self, chunk_size: Union[int, str], **kwargs) -> dd.DataFrame:
         """
