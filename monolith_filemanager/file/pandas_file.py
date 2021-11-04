@@ -71,8 +71,10 @@ class PandasFile(File):
 
         :param data: (pandas or dask data frame) data to be written to file
         :param repartition: (bool) whether or not to repartition the dataframe to a given chunk size. Default to False.
-        :param divisions: (int or str) dask-compatible maximum partition size.
-                                    Interpreted as number of bytes if str, or number of divisions if int.
+        :param divisions: (list of int, or int or str) dask-compatible maximum partition size.
+                                    Interpreted as index of partitions if a list of ints
+                                    Interpreted as number of bytes if str,
+                                    Interpreted as number of divisions if int.
         :param scheduler: (str) Dask local scheduler type to use for computation.
             Choose from "threads", "single-threaded", or "processes"
         :param cb: (optional dask Callback) A dask-compatible callback for updates during computation of the dask graph.
