@@ -4,7 +4,6 @@ from unittest.mock import patch, MagicMock
 
 import dask.dataframe as dd
 import pandas as pd
-from dask.dataframe.utils import assert_eq
 from pandas.testing import assert_frame_equal
 from parameterized import parameterized
 
@@ -14,6 +13,7 @@ from monolith_filemanager.file.pandas_file import PandasFile
 file_types = PandasFile.SUPPORTED_FORMATS
 CHUNK_SIZE = '256MB'
 STORAGE_OPTIONS = {'config_kwargs': {'max_pool_connections': 32}, 'skip_instance_cache': True}
+
 
 class TestPandasFile(TestCase):
     @classmethod
@@ -38,20 +38,7 @@ class TestPandasFile(TestCase):
         mock_file_init.assert_called_once_with(path="test")
 
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__")
-    def test__map_write_functions(self, mock_init):
-        mock_init.return_value = None
-        test = PandasFile(path="test")
-        test.path = MagicMock()
-        test.path.file_type = "csv"
-        test_input = MagicMock()
-        out_come = test._map_write_functions(data=test_input, scheduler='test_scheduler')
-
-        self.assertEqual(test_input.to_csv, out_come)
-        self.assertEqual(test_input.to_csv("test path"), out_come("test path"))
-
-    @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
-    @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__")
-    def test_write(self, mock_init, mock_map):
+    def test_write(self, mock_init):
         mock_init.return_value = None
         test = PandasFile(path="test")
 
@@ -59,7 +46,8 @@ class TestPandasFile(TestCase):
         test_data = pd.DataFrame([{"one": 1, "two": 2}, {"one": 1, "two": 2}])
         test_data_dask = dd.from_pandas(test_data, npartitions=1)
 
-        test.write(data=test_data, repartition=False, scheduler='test_scheduler')
+        with self.assertRaisesRegex(ValueError, 'Failed writing dataframe to file\. (.*)'):
+            test.write(data=test_data, repartition=False, scheduler='test_scheduler')
 
         with self.assertRaises(Exception):
             test.write(data="test")
@@ -68,13 +56,8 @@ class TestPandasFile(TestCase):
         with self.assertRaises(Exception):
             test.write(data=[])
 
-        mock_map.assert_called_once()
-        assert_eq(mock_map.call_args[1]['data'], test_data_dask, check_divisions=False)
-        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'test_scheduler'})
-
-    @patch("monolith_filemanager.file.pandas_file.PandasFile._map_write_functions")
     @patch("monolith_filemanager.file.pandas_file.PandasFile.__init__", return_value=None)
-    def test_write_with_callback(self, _, mock_map):
+    def test_write_with_callback(self, _):
         test = PandasFile(path="test")
         cb = MagicMock()
 
@@ -82,7 +65,8 @@ class TestPandasFile(TestCase):
         test_data = pd.DataFrame([{"one": 1, "two": 2}, {"one": 1, "two": 2}])
         test_data_dask = dd.from_pandas(test_data, npartitions=1)
 
-        test.write(data=test_data, cb=cb)
+        with self.assertRaisesRegex(ValueError, 'Failed writing dataframe to file\. (.*)'):
+            test.write(data=test_data, cb=cb)
 
         with self.assertRaises(Exception):
             test.write(data="test")
@@ -90,10 +74,6 @@ class TestPandasFile(TestCase):
             test.write(data=1)
         with self.assertRaises(Exception):
             test.write(data=[])
-
-        mock_map.assert_called_once()
-        assert_eq(mock_map.call_args[1]['data'], test_data_dask, check_divisions=False)
-        mock_map.return_value.assert_called_once_with(test.path, compute_kwargs={'scheduler': 'threads'})
 
         cb.__enter__.assert_called_once()
         cb.__exit__.assert_called_once()
@@ -118,8 +98,6 @@ class TestPandasFile(TestCase):
 
         with self.assertRaises(PandasFileError):
             _ = test._read_dask(chunk_size=1)
-
-
 
     @parameterized.expand([(f, lazy) for f in file_types for lazy in (True, False)])
     def test_read_functional(self, file_type, lazy):
