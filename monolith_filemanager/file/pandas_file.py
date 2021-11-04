@@ -98,8 +98,15 @@ class PandasFile(File):
                 self._write_functions(data, self.path, scheduler)
 
     @staticmethod
-    def _write_functions(df, path, scheduler):
-        """ Function for mapping file type to correct write method. """
+    def _write_functions(df: DataFrameType, path: FilePath, scheduler: str) -> None:
+        """
+        Function for mapping file type to correct write method.
+
+        :param df: (pandas or dask data frame) data to be written to file
+        :param path: (FilePath) the path to save the dataframe to.
+        :param scheduler: (str) Dask local scheduler type to use for computation.
+            Choose from "threads", "single-threaded", or "processes"
+        """
         if path.file_type in ('xls', 'xlsx'):
             df.compute(scheduler=scheduler).to_excel(path),
         elif path.file_type in ('csv', 'dat', 'data'):
