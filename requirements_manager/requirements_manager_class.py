@@ -42,7 +42,8 @@ class RequirementsManager:
         """
         def _simplify_value(key):
             value = eval(section[key].replace("{", "dict(").replace("}", ")"))
-            return '%s%s' % (key, section[key].strip('"')) if isinstance(value, str) else '%s[%s]%s' % (key, value['extras'][0], value['version'])
+            return '%s%s' % (key, section[key].strip('"')) if isinstance(value, str) \
+                else '%s[%s]%s' % (key, value['extras'][0], value['version'])
         package_list = list(map(_simplify_value, section))
         return {package.split("==")[0]: package.split("==")[1] for package in package_list}
 
@@ -50,16 +51,12 @@ class RequirementsManager:
         """
         Sets the packages and dev_packages attributes from their sections in the self.config.
         :return: None
-        :raises: (NoPackagesInPipfileError) If not package section found in self.config
+        :raises: (NoPackagesInPipfileError) If not packages found in self.config 'packages'
         """
-        try:
-            self.packages = self._simplify_section(self.config["packages"])
-        except KeyError:
+        self.packages = self._simplify_section(self.config["packages"])
+        if self.packages == {}:
             raise NoPackagesInPipfileError()
-        try:
-            self.dev_packages = self._simplify_section(self.config["dev-packages"])
-        except KeyError:
-            pass
+        self.dev_packages = self._simplify_section(self.config["dev-packages"])
 
     def get_packages(self, operator: OperatorEnum, extras_require: Optional[List[str]] = None) -> List[str]:
         """

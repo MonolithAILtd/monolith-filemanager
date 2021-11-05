@@ -1,6 +1,7 @@
 from unittest import TestCase
 
 from requirements_manager import RequirementsManager, OperatorEnum
+from requirements_manager.errors import NoPackagesInPipfileError, PipfilePathDoesNotExistError
 
 
 extras_packages = {
@@ -20,9 +21,16 @@ all_packages = ['globre>=0.1.5', 'h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.16.
 
 
 class TestRequirementsManager(TestCase):
+    """
+    Functional Tests
+    """
 
     def setUp(self) -> None:
         self.reqs = RequirementsManager(pipfile_loc="tests/resources/Pipfile")
+
+    def test_pipfile_invalid_path(self):
+        with self.assertRaises(PipfilePathDoesNotExistError):
+            self.reqs = RequirementsManager(pipfile_loc="tests/resources/invalid")
 
     def test_manager_get_packages_success(self):
         assert set(all_packages) == set(self.reqs.get_packages(operator=OperatorEnum.GREATER_THAN_EQUAL))
@@ -34,4 +42,7 @@ class TestRequirementsManager(TestCase):
             self.reqs.get_packages(operator=OperatorEnum.GREATER_THAN_EQUAL, extras_require=extras_packages["matlab"]))
 
     def test_manager_get_packages_fail(self):
-        with self.
+        # assert errors raised if 'packages' section of Pipfile contains no packages
+        with self.assertRaises(NoPackagesInPipfileError):
+            reqs_no_packages = RequirementsManager(pipfile_loc="tests/resources/Pipfile_no_packages")
+
