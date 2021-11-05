@@ -202,7 +202,7 @@ When adding/removing/upgrading/downgrading a package, use the following workflow
 pipenv install <package_name>==<version> (or uninstall)
 ```
 If, after installation the Pipfile.lock does not generate due to unresolved dependency clashes, you must resolve these 
-and generate a successfully .lock file before pushing.
+and generate a successful .lock file before pushing.
 
 The relevant Pipfile packages and versions are read into the setup.py `install_requires` arg in order to maintain a 
 single source of truth for dependencies. The `RequirementsManager` class in `setup.py` handles this.
