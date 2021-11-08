@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies using pipenv
         run: pipenv sync
       - name: update version
-        run: python get_latest_version.py
+        run: pipenv run python get_latest_version.py
       - name: install deployment dependancies
         if: github.event.pull_request.merged == true
         run: |
@@ -30,12 +30,12 @@ jobs:
           pip install pexpect
       - name: package module
         if: github.event.pull_request.merged == true
-        run: python setup.py sdist
+        run: pipenv run python setup.py sdist
       - name: deploy to pypi
         if: github.event.pull_request.merged == true
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
-          python setup.py sdist
+          pipenv run python setup.py sdist
           twine upload dist/*
