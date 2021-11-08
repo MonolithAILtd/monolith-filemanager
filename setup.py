@@ -4,10 +4,17 @@ import setuptools
 from setuptools import find_packages
 from setuptools.command.build_py import build_py as build_py_orig
 
+from requirements_manager import RequirementsManager, OperatorEnum
 
 # from setuptools import dist
 # dist.Distribution().fetch_build_eggs(['Cython==0.29'])
 # from Cython.Build import cythonize
+
+extras_packages = {
+    "flask": ["flask", "tensorflow", "boto3"],
+    "3d": ["pyvista", "gmsh"],
+    "matlab": ["scipy"]
+}
 
 
 class CustomBuildPy(build_py_orig):
@@ -30,6 +37,9 @@ directives = {
     'always_allow_keywords': True
 }
 
+requirements = RequirementsManager()
+
+
 setuptools.setup(
     name="monolith_filemanager",
     version=version,
@@ -39,22 +49,11 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MonolithAILtd/monolith-filemanager",
-    install_requires=[
-        "gmsh>=4.5.6",
-        "h5py>=2.10.0",
-        "joblib>=0.15.0",
-        "scipy>=1.4.1",
-        "numpy>=1.16.4",
-        "pandas>=0.25.1",
-        "pyvista>=0.24.2",
-        "PyYAML>=5.1.2",
-        "globre>=0.1.5",
-        "dill>=0.2.8"
-    ],
+    install_requires=requirements.get_packages(operator=OperatorEnum.GREATER_THAN_EQUAL),
     extras_require={
-        'flask': ["Flask>=1.0.0", "tensorflow>=2.2.0", "boto3>=1.16.43"],
-        '3d': ["pyvista>=0.24.2", "gmsh>=4.5.6"],
-        'matlab': ["scipy>=1.4.1"]
+        'flask': requirements.get_packages(operator=OperatorEnum.GREATER_THAN_EQUAL, extras_require=extras_packages["flask"]),
+        '3d': requirements.get_packages(operator=OperatorEnum.GREATER_THAN_EQUAL, extras_require=extras_packages["3d"]),
+        'matlab': requirements.get_packages(operator=OperatorEnum.GREATER_THAN_EQUAL, extras_require=extras_packages["matlab"])
     },
     packages=find_packages(exclude=("tests",)),
     classifiers=[

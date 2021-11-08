@@ -190,6 +190,24 @@ The module supports the following extensions:
 - vtk
 - yml
 
+# Dependency management - INFO FOR CONTRIBUTORS
+We use pipenv to manage dependency resolution. To build a local dev environment, install from the Pipfile.lock after creating
+and activating your pipenv environment e.g:
+```shell
+pipenv sync --dev
+```
+
+When adding/removing/upgrading/downgrading a package, use the following workflow:
+```shell
+pipenv install <package_name>==<version> (or uninstall)
+```
+If, after installation the Pipfile.lock does not generate due to unresolved dependency clashes, you must resolve these 
+and generate a successful .lock file before pushing.
+
+The relevant Pipfile packages and versions are read into the setup.py `install_requires` arg in order to maintain a 
+single source of truth for dependencies. The `RequirementsManager` class in the `requirements_manager` package handles 
+this.
+
 # Versioning
 In line with the 'semantic versioning' workflow, the release type can now be specified for each merge and publish 
 on to PyPi. The `release_type.yaml` has the following format and must be amended by the developer accordingly in order
