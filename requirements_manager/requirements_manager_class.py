@@ -7,6 +7,8 @@ from .errors import NoPackagesInPipfileError, PipfilePathDoesNotExistError
 from .operator_enums import OperatorEnum
 
 
+# todo - Store this as a Github gist or re-usable, cross-repo package that can be used across Monolith projects
+
 class RequirementsManager:
     """
     Manages reading the Pipfile and converting it into a correctly formatted list of strings for use in the

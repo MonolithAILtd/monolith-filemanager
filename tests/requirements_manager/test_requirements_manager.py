@@ -22,7 +22,7 @@ all_packages = ['globre>=0.1.5', 'h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.16.
 
 class TestRequirementsManager(TestCase):
     """
-    Functional Tests
+    Simple functional Tests for RequirementsManager
     """
 
     def setUp(self) -> None:

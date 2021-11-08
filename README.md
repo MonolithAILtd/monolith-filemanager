@@ -205,7 +205,8 @@ If, after installation the Pipfile.lock does not generate due to unresolved depe
 and generate a successful .lock file before pushing.
 
 The relevant Pipfile packages and versions are read into the setup.py `install_requires` arg in order to maintain a 
-single source of truth for dependencies. The `RequirementsManager` class in `setup.py` handles this.
+single source of truth for dependencies. The `RequirementsManager` class in the `requirements_manager` package handles 
+this.
 
 # Versioning
 In line with the 'semantic versioning' workflow, the release type can now be specified for each merge and publish 
