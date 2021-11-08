@@ -19,16 +19,15 @@ class RequirementsManager:
         self.packages: (Optional[Dict]) all packages and versions excl. dev-packages
         self.dev_packages: (Optional[Dict]) all dev-packages
     """
-    def __init__(self, pipfile_loc: str) -> None:
+    def __init__(self, pipfile_loc: str = "./Pipfile") -> None:
         """
         :param pipfile_loc: (str) location of Pipfile
         :return: None
         :raises: (PipfilePathDoesNotExistError) if Pipfile path does not exist
         """
-        if os.path.exists(pipfile_loc):
-            self.config: ConfigParser = configparser.ConfigParser()
-        else:
+        if not os.path.exists(pipfile_loc):
             raise PipfilePathDoesNotExistError()
+        self.config: ConfigParser = configparser.ConfigParser()
         self.config.read(pipfile_loc)
         self.packages: Optional[Dict] = None
         self.dev_packages: Optional[Dict] = None

@@ -37,7 +37,7 @@ directives = {
     'always_allow_keywords': True
 }
 
-requirements = RequirementsManager(pipfile_loc="./Pipfile")
+requirements = RequirementsManager()
 
 
 setuptools.setup(
