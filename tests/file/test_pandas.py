@@ -4,7 +4,8 @@ from unittest.mock import patch, MagicMock
 
 import dask.dataframe as dd
 import pandas as pd
-from pandas.testing import assert_frame_equal
+from numpy.testing import assert_array_equal
+from pandas.testing import assert_frame_equal, assert_index_equal
 from parameterized import parameterized
 
 from monolith_filemanager.file.errors import PandasFileError
@@ -26,6 +27,15 @@ class TestPandasFile(TestCase):
         cls.example_df.to_excel(f'{cls.test_dir.name}/data.xlsx', index=False)
         cls.example_df.to_csv(f'{cls.test_dir.name}/data.dat', index=False, sep=',')
         cls.example_df.to_csv(f'{cls.test_dir.name}/data.data', index=False, sep=',')
+
+        # Example dask df with index of [0, 0, 1, 1]
+        cls.example_dask_df = \
+            dd.from_pandas(
+                pd.concat([cls.example_df, cls.example_df], axis=0),
+                npartitions=1,
+                sort=False
+            )
+        cls.example_dask_df.to_parquet(f'{cls.test_dir.name}/dask-data.parquet')
 
     @classmethod
     def tearDownClass(cls):
@@ -114,6 +124,30 @@ class TestPandasFile(TestCase):
 
         self.assertIsInstance(df, pd.DataFrame)
         assert_frame_equal(df, self.example_df)
+
+    def test_read_dask_saved_file_eager_reset_index(self):
+        """
+        Dask saves partitioned dataframe folders with a different index to how pandas might store them.
+        This test checks that the index returned with file.read(lazy=False) has a consistent linear index.
+        """
+        file = PandasFile(path=f'{self.test_dir.name}/dask-data.parquet')
+        df = file.read(reset_index=True)
+
+        self.assertIsInstance(df, pd.DataFrame)
+        assert_array_equal(df.values, self.example_dask_df.compute().values)
+        assert_index_equal(df.index, pd.Index([0, 1, 2, 3]))
+
+    def test_read_dask_saved_file_eager(self):
+        """
+        Dask saves partitioned dataframe folders with a different index to how pandas might store them.
+        This test checks that the index returned with file.read(lazy=False) has a consistent linear index.
+        """
+        file = PandasFile(path=f'{self.test_dir.name}/dask-data.parquet')
+        df = file.read(reset_index=False)
+
+        self.assertIsInstance(df, pd.DataFrame)
+        assert_array_equal(df.values, self.example_dask_df.compute().values)
+        assert_index_equal(df.index, pd.Index([0, 1, 0, 1]))
 
 
 if __name__ == "__main__":

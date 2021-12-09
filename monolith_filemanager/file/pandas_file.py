@@ -52,17 +52,29 @@ class PandasFile(File):
         """
         super().__init__(path=path)
 
-    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '256MB', **kwargs) -> DataFrameType:
+    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '256MB', reset_index: bool = True,
+             **kwargs) -> DataFrameType:
         """
         Gets data from file defined by file path.
+        If `lazy` is True, then returns a Dask DataFrame.
+        If `lazy` is False, then returns a Pandas DataFrame. The index can be reset to avoid inconsistency with how Dask
+            stores DataFrame indexes.
 
         :param lazy: (bool) Whether reading should be lazy (returns dask DataFrame) or eager (returns pandas DataFrame)
         :param chunk_size: (dask compatible int or str) size in bytes of chunks to read. Only used if lazy == True
-        :return: Data from file
+        :param reset_index: (bool) Whether or not to reset the index of the read dataframe.
+            Only resets the index of pandas dataframes
+        :return: (DataFrameType) Data from file
         """
         storage_options = {'config_kwargs': {'max_pool_connections': 32}, 'skip_instance_cache': True}
-        return self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
+        df = self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
             else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
+
+        if reset_index and not lazy:
+            # Reset the index of pandas dataframes if requested
+            df = df.reset_index(drop=True)
+
+        return df
 
     def write(self, data: DataFrameType, repartition: bool = False, divisions: Union[int, str] = '64MB',
               scheduler: str = 'threads', cb: Optional[Callback] = None, **kwargs) -> None:
