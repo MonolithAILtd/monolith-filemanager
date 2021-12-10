@@ -131,7 +131,7 @@ class TestPandasFile(TestCase):
         This test checks that the index returned with file.read(lazy=False) has a consistent linear index.
         """
         file = PandasFile(path=f'{self.test_dir.name}/dask-data.parquet')
-        df = file.read(reset_index=True)
+        df = file.read(reset_index_if_eager=True)
 
         self.assertIsInstance(df, pd.DataFrame)
         assert_array_equal(df.values, self.example_dask_df.compute().values)
@@ -143,12 +143,18 @@ class TestPandasFile(TestCase):
         This test checks that the index returned with file.read(lazy=False) has a consistent linear index.
         """
         file = PandasFile(path=f'{self.test_dir.name}/dask-data.parquet')
-        df = file.read(reset_index=False)
+        df = file.read(reset_index_if_eager=False)
 
         self.assertIsInstance(df, pd.DataFrame)
         assert_array_equal(df.values, self.example_dask_df.compute().values)
         assert_index_equal(df.index, pd.Index([0, 1, 0, 1]))
 
+    def test_read_dask_saved_file_lazy_reset_index(self):
+        file = PandasFile(path=f'{self.test_dir.name}/dask-data.parquet')
+        df = file.read(lazy=True, reset_index_if_eager=True)
+
+        self.assertIsInstance(df, dd.DataFrame)
+        assert_frame_equal(df.compute(), self.example_dask_df.compute())
 
 if __name__ == "__main__":
     main()

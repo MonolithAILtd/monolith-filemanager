@@ -52,7 +52,7 @@ class PandasFile(File):
         """
         super().__init__(path=path)
 
-    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '256MB', reset_index: bool = True,
+    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '256MB', reset_index_if_eager: bool = True,
              **kwargs) -> DataFrameType:
         """
         Gets data from file defined by file path.
@@ -62,7 +62,7 @@ class PandasFile(File):
 
         :param lazy: (bool) Whether reading should be lazy (returns dask DataFrame) or eager (returns pandas DataFrame)
         :param chunk_size: (dask compatible int or str) size in bytes of chunks to read. Only used if lazy == True
-        :param reset_index: (bool) Whether or not to reset the index of the read dataframe.
+        :param reset_index_if_eager: (bool) Whether or not to reset the index of the read dataframe.
             Only resets the index of pandas dataframes
         :return: (DataFrameType) Data from file
         """
@@ -70,7 +70,7 @@ class PandasFile(File):
         df = self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
             else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
 
-        if reset_index and not lazy:
+        if reset_index_if_eager and not lazy:
             # Reset the index of pandas dataframes if requested
             df = df.reset_index(drop=True)
 
