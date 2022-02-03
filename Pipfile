@@ -15,7 +15,7 @@ pandas = "==0.25.1"
 dask = {version = "==2020.12.0", extras = ["complete"]}
 distributed = "==2021.1.1"
 dill = "==0.2.9"
-pyvista = "==0.24.2"
+pyvista = "==0.33.2"
 pyyaml = "==5.1.2"
 boto3 = "==1.10.5"
 botocore = "==1.13.5"
