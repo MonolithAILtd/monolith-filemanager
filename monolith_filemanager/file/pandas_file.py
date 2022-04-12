@@ -14,7 +14,7 @@ DataFrameType = Union[pd.DataFrame, dd.DataFrame]
 
 
 def dask_read_excel(path: str, **kwargs) -> dd.DataFrame:
-    delayed_df = delayed(pd.read_excel)(path)
+    delayed_df = delayed(pd.read_excel)(path, **kwargs)
     return dd.from_delayed(delayed_df)
 
 
@@ -130,11 +130,12 @@ class PandasFile(File):
 
     def _read_dask(self, chunk_size: Union[int, str], **kwargs) -> dd.DataFrame:
         """
-        Read from file using dask loading method
+        Read from file using dask loading method. Pass engine kwarg to loading method to specify openpyxl.
 
         :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
         :return: dask DataFrame from file
         """
+        kwargs = {**kwargs, "engine": "openpyxl"}
         if self.path.file_type not in self.DASK_SUPPORTED_FORMATS:
             raise PandasFileError(f'File type {self.path.file_type} not supported for lazy loading.')
 
