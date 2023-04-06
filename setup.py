@@ -4,11 +4,8 @@ import setuptools
 from setuptools import find_packages
 from setuptools.command.build_py import build_py as build_py_orig
 
+from monolith_filemanager import __version__
 from requirements_manager import RequirementsManager, OperatorEnum
-
-# from setuptools import dist
-# dist.Distribution().fetch_build_eggs(['Cython==0.29'])
-# from Cython.Build import cythonize
 
 extras_packages = {
     "flask": ["flask", "tensorflow", "boto3"],
@@ -29,8 +26,6 @@ class CustomBuildPy(build_py_orig):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open(str(pathlib.Path(__file__).parent.absolute()) + "/monolith_filemanager/version.py", "r") as fh:
-    version = fh.read().split("=")[1].replace("'", "")
 
 directives = {
     'language_level': 3,
@@ -42,7 +37,7 @@ requirements = RequirementsManager()
 
 setuptools.setup(
     name="monolith_filemanager",
-    version=version,
+    version=__version__,
     author="Maxwell Flitton",
     author_email="maxwell@gmail.com",
     description="Python package for reading and writing files",
@@ -71,8 +66,4 @@ setuptools.setup(
             'file-install-aws = monolith_filemanager.console_commands.install_boto:install_boto'
         ],
     }
-    # ext_modules=cythonize("caching/**/*.py", exclude="tests/**/*.py", compiler_directives=directives, nthreads=4),
-    # cmdclass={'build_py': CustomBuildPy},
-    # include_package_data=False,
-    # options={"bdist_wheel": {"universal": "1"}}
 )
