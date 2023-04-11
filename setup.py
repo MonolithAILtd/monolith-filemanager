@@ -1,4 +1,8 @@
-from setuptools import find_packages, setup
+import pathlib
+
+import setuptools
+from setuptools import find_packages
+from setuptools.command.build_py import build_py as build_py_orig
 
 from monolith_filemanager import __version__
 from requirements_manager import RequirementsManager, OperatorEnum
@@ -8,6 +12,16 @@ extras_packages = {
     "3d": ["pyvista", "gmsh"],
     "matlab": ["scipy"]
 }
+
+
+class CustomBuildPy(build_py_orig):
+    """
+    subclass build_py so that we collect no .py files inside the built pip package
+    this is done by overriding build_packages method with a noop
+    """
+    def build_packages(self):
+        pass
+
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -21,7 +35,7 @@ directives = {
 requirements = RequirementsManager()
 
 
-setup(
+setuptools.setup(
     name="monolith_filemanager",
     version=__version__,
     author="Maxwell Flitton",
