@@ -2,11 +2,12 @@ import posixpath
 from typing import Any, Union, Tuple, List, Optional
 from urllib.parse import unquote
 
+import globre
+
 from monolith_filemanager.adapters.base import Base
 from monolith_filemanager.adapters.errors import S3ProcessesAdapterError
 from monolith_filemanager.file.base import File, FilePath
 from monolith_filemanager.s3storage import V1Engine
-from shared_symbols.utils import monolith_globre_match
 
 
 class S3ProcessesAdapter(Base):
@@ -318,7 +319,7 @@ class S3ProcessesAdapter(Base):
 
     @staticmethod
     def _glob_match(pattern: str, file: str):
-        return bool(monolith_globre_match(pattern, file))
+        return bool(globre.match(pattern, file))
 
     def rename_file(self, new_name: str) -> None:
         """
