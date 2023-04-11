@@ -180,7 +180,6 @@ The module supports the following extensions:
 - data
 - hdf5
 - h5
-- hdf5
 - hdf
 - json
 - joblib
@@ -218,9 +217,6 @@ release_type: "minor"
 ```
 
 # Contributing 
-This repo is still fairly new so contributing will require some communication. 
-You can contact with ideas and outline for a feature at ```maxwell@monolithai.com```.
-
 Writing code is not the only way you can contribute. Merely using the module is a help, if you come across any issues 
 feel free to raise them in the issues section of the Github page as this enables us to make the module more stable.
 If there are any issues that you want to solve, your pull request has to have documentation, 100% unit test coverage 
