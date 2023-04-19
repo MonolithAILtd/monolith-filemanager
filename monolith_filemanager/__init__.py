@@ -6,6 +6,7 @@ from .adapters.s3_processes import S3ProcessesAdapter
 from .adapters.local_file_processes import LocalFileProcessesAdapter
 from .components.path_map import PathMap
 
+__version__ = '1.1.1'
 
 def file_manager(file_path: Union[str, FilePath], caching: Optional[Any] = None) -> Base:
     """

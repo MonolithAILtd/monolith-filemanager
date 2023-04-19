@@ -4,6 +4,7 @@ import setuptools
 from setuptools import find_packages
 from setuptools.command.build_py import build_py as build_py_orig
 
+from monolith_filemanager import __version__
 from requirements_manager import RequirementsManager, OperatorEnum
 
 # from setuptools import dist
@@ -29,9 +30,6 @@ class CustomBuildPy(build_py_orig):
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open(str(pathlib.Path(__file__).parent.absolute()) + "/monolith_filemanager/version.py", "r") as fh:
-    version = fh.read().split("=")[1].replace("'", "")
-
 directives = {
     'language_level': 3,
     'always_allow_keywords': True
@@ -42,7 +40,7 @@ requirements = RequirementsManager()
 
 setuptools.setup(
     name="monolith_filemanager",
-    version=version,
+    version=__version__,
     author="Maxwell Flitton",
     author_email="maxwell@gmail.com",
     description="Python package for reading and writing files",
