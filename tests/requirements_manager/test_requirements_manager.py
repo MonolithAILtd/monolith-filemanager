@@ -5,7 +5,7 @@ from requirements_manager.errors import NoPackagesInPipfileError, PipfilePathDoe
 
 
 extras_packages = {
-    "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja", "itsdangerous", "werkzeug"],
+    "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja2", "itsdangerous", "werkzeug"],
     "3d": ["pyvista", "gmsh"],
     "matlab": ["scipy"]
 }
