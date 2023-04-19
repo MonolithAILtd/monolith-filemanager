@@ -11,8 +11,8 @@ extras_packages = {
 }
 
 flask_packages = ["flask>=1.1.2", "tensorflow>=2.2.0", "boto3>=1.10.5", "protobuf>=3.20.1",
-                  "jina2==3.0.3"]
-three_d_packages = ["gmsh>=4.9.0", "pyvista>=0.24.2"]
+                  "jinja2>=3.0.3"]
+three_d_packages = ["gmsh>=4.9.0", "pyvista>=0.38.5"]
 matlab_packages = ["scipy>=1.4.1"]
 
 all_packages = ['h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.16.4', 'pandas>=0.25.1',
