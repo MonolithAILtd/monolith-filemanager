@@ -4,7 +4,6 @@ import setuptools
 from setuptools import find_packages
 from setuptools.command.build_py import build_py as build_py_orig
 
-from monolith_filemanager import __version__
 from requirements_manager import RequirementsManager, OperatorEnum
 
 # from setuptools import dist
@@ -17,6 +16,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
+__version__ = '1.1.1'
 
 class CustomBuildPy(build_py_orig):
     """
