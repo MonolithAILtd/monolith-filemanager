@@ -39,6 +39,7 @@ pyarrow = "==0.16.0"
 xlwt = "==1.3.0"
 xlrd = "==1.2.0"
 scipy = "==1.4.1"
+cqparts = "*"
 
 [dev-packages]
 parameterized = "==0.7.0"

@@ -1,8 +1,11 @@
-import tempfile
+#import tempfile
 from typing import Any, Union
 
+import cqparts
+from cqparts.utils import geometry
+
 from .base import File
-from .errors import GmshFileError
+#from .errors import GmshFileError
 from ..path import FilePath
 
 
@@ -27,24 +30,29 @@ class GmshFile(File):
         :return: using tempfile as a buffer to converting a CAD file to a mesh
         """
 
-        try:
-            import gmsh
-        except ImportError:
-            raise GmshFileError(
-                message="loading a gmsh file relies on the gmsh module. Please install this module and try again."
-            )
+        # try:
+        #     import gmsh
+        # except ImportError:
+        #     raise GmshFileError(
+        #         message="loading a gmsh file relies on the gmsh module. Please install this module and try again."
+        #     )
 
-        # if we initialize with sys.argv it could be anything
-        gmsh.initialize()
-        gmsh.option.setNumber("General.Terminal", 1)
-        gmsh.model.add('Surface_Mesh_Generation')
-        gmsh.open(self.path)
+        # # if we initialize with sys.argv it could be anything
+        # gmsh.initialize()
+        # gmsh.option.setNumber("General.Terminal", 1)
+        # gmsh.model.add('Surface_Mesh_Generation')
+        # gmsh.open(self.path)
 
-        # create a temporary file for the results
-        out_data = tempfile.NamedTemporaryFile(suffix='.stl', delete=False)
-        out_data.close()
+        # # create a temporary file for the results
+        # out_data = tempfile.NamedTemporaryFile(suffix='.stl', delete=False)
+        # out_data.close()
 
-        return out_data
+        # return out_data
+
+        model = geometry.load(self.path)
+        cq_object = cqparts.Assembly(model)
+
+        return cq_object
 
     def write(self, data: Any, **kwargs) -> None:
         """
