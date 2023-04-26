@@ -1,8 +1,7 @@
 #import tempfile
 from typing import Any, Union
 
-import cqparts
-from cqparts.utils import geometry
+import cqkit
 
 from .base import File
 #from .errors import GmshFileError
@@ -49,10 +48,9 @@ class GmshFile(File):
 
         # return out_data
 
-        model = geometry.load(self.path)
-        cq_object = cqparts.Assembly(model)
+        model = cqkit.importers.import_step(self.path)
 
-        return cq_object
+        return model
 
     def write(self, data: Any, **kwargs) -> None:
         """
