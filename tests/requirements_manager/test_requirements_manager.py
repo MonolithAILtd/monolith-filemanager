@@ -7,19 +7,19 @@ from requirements_manager.errors import NoPackagesInPipfileError, PipfilePathDoe
 extras_packages = {
     "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja2", "itsdangerous", "werkzeug",
               "markupsafe"],
-    "3d": ["pyvista", "gmsh"],
+    "3d": ["pyvista", "gmsh", "cqkit", "cadquery"],
     "matlab": ["scipy"]
 }
 
 flask_packages = ["flask>=1.1.4", "tensorflow>=2.2.0", "boto3>=1.10.5", "protobuf>=3.20.1",
                   "jinja2>=2.11.3", "itsdangerous>=1.1.0", "werkzeug>=1.0.1", "markupsafe>=2.0.1"]
-three_d_packages = ["gmsh>=4.9.0", "pyvista>=0.34.2"]
+three_d_packages = ["gmsh>=4.9.0", "pyvista>=0.34.2", "cqkit>=0.4.0", "cadquery>=2.2.0"]
 matlab_packages = ["scipy>=1.4.1"]
 
-all_packages = ['h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.16.4', 'pandas>=0.25.1',
+all_packages = ['h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.20.3', 'pandas>=0.25.1',
                 'distributed>=2021.1.1', 'dill>=0.2.9', 'pyyaml>=5.1.2', 'boto3>=1.10.5', 'botocore>=1.13.5',
                 'requests>=2.22.0', 'openpyxl>=3.0.7', 'pyarrow>=0.16.0', 'xlwt>=1.3.0', 'xlrd>=1.2.0',
-                'dask[complete]>=2020.12.0', 'cqkit>=0.5.1'] + flask_packages + three_d_packages + matlab_packages
+                'dask[complete]>=2020.12.0'] + flask_packages + three_d_packages + matlab_packages
 
 
 class TestRequirementsManager(TestCase):

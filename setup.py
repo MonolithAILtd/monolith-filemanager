@@ -11,8 +11,9 @@ from requirements_manager import RequirementsManager, OperatorEnum
 # from Cython.Build import cythonize
 
 extras_packages = {
-    "flask": ["flask", "tensorflow", "boto3"],
-    "3d": ["pyvista", "gmsh"],
+    "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja2", "itsdangerous", "werkzeug",
+              "markupsafe"],
+    "3d": ["pyvista", "gmsh", "cqkit", "cadquery"],
     "matlab": ["scipy"]
 }
 

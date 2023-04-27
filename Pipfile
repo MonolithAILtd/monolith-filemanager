@@ -21,8 +21,9 @@ tensorflow = "==2.2.0"
 # protobuf is a subdependency of tensorflow. It must be pinned to address:
 # https://protobuf.dev/news/2022-05-06/#python-updates
 protobuf = "==3.20.1"
-numpy = "==1.16.4"
-pandas = "==0.25.1"
+# numpy is also a subdependency of cadquery (via nptyping)
+numpy = "==1.20.3"
+pandas = "*"
 dask = {version = "==2020.12.0", extras = ["complete"]}
 distributed = "==2021.1.1"
 dill = "==0.2.9"
@@ -41,6 +42,8 @@ xlrd = "==1.2.0"
 scipy = "==1.4.1"
 # This version of cqkit is required because later versions need Python>=3.8
 cqkit = "==0.4.0"
+# This is a dependency of cqkit but ckqit requirements.txt and setup.py files don't list it
+cadquery = "==2.2.0"
 
 [dev-packages]
 parameterized = "==0.7.0"
@@ -49,4 +52,4 @@ pytest = "==4.3.1"
 globre = "==0.1.5"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
