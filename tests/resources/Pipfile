@@ -43,7 +43,6 @@ scipy = "==1.4.1"
 cqkit = "==0.5.1"
 # This is a dependency of cqkit but ckqit requirements.txt and setup.py files don't list it
 cadquery = "==2.2.0"
-cadquery-ocp = "==7.7.0"
 
 [dev-packages]
 parameterized = "==0.7.0"
