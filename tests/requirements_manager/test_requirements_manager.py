@@ -7,13 +7,13 @@ from requirements_manager.errors import NoPackagesInPipfileError, PipfilePathDoe
 extras_packages = {
     "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja2", "itsdangerous", "werkzeug",
               "markupsafe"],
-    "3d": ["pyvista", "gmsh", "cqkit", "cadquery"],
+    "3d": ["pyvista", "gmsh", "cqkit", "cadquery", "cadquery-ocp"],
     "matlab": ["scipy"]
 }
 
 flask_packages = ["flask>=1.1.4", "tensorflow>=2.2.0", "boto3>=1.10.5", "protobuf>=3.20.1",
                   "jinja2>=2.11.3", "itsdangerous>=1.1.0", "werkzeug>=1.0.1", "markupsafe>=2.0.1"]
-three_d_packages = ["gmsh>=4.9.0", "pyvista>=0.34.2", "cqkit>=0.5.1", "cadquery>=2.2.0"]
+three_d_packages = ["gmsh>=4.9.0", "pyvista>=0.34.2", "cqkit>=0.5.1", "cadquery>=2.2.0", "cadquery-ocp>=7.7.0"]
 matlab_packages = ["scipy>=1.4.1"]
 
 all_packages = ['h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.22.4', 'pandas>=1.5.3',
