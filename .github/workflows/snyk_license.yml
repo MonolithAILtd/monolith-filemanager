@@ -1,0 +1,12 @@
+name: Snyk Dependency and Licence Check
+on:
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  check-packages:
+    uses: MonolithAILtd/.github/.github/workflows/snyk_and_licence_check.yml@main
+    secrets: inherit
+    with:
+      requirements-path: 'requirements.txt'
+      python-version: 3.7
