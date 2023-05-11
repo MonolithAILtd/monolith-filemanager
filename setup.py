@@ -13,7 +13,7 @@ from requirements_manager import RequirementsManager, OperatorEnum
 extras_packages = {
     "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja2", "itsdangerous", "werkzeug",
               "markupsafe"],
-    "3d": ["pyvista", "gmsh", "cqkit", "cadquery"],
+    "3d": ["pyvista" "cqkit", "cadquery"],
     "matlab": ["scipy"]
 }
 
