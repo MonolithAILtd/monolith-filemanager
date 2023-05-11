@@ -16,7 +16,7 @@ flask_packages = ["flask>=1.1.4", "tensorflow>=2.2.0", "boto3>=1.10.5", "protobu
 three_d_packages = ["pyvista>=0.34.2", "cqkit>=0.5.1", "cadquery>=2.2.0"]
 matlab_packages = ["scipy>=1.4.1"]
 
-all_packages = ['h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.22.4', 'pandas>=1.3.4',
+all_packages = ['h5py>=2.10.0', 'joblib>=0.15.0', 'numpy>=1.22.4', 'pandas>=1.2.5',
                 'distributed>=2021.1.1', 'dill>=0.2.9', 'pyyaml>=5.1.2', 'boto3>=1.10.5', 'botocore>=1.13.5',
                 'requests>=2.22.0', 'openpyxl>=3.0.7', 'pyarrow>=1.0.1', 'xlwt>=1.3.0', 'xlrd>=2.0.1',
                 'dask[complete]>=2020.12.0'] + flask_packages + three_d_packages + matlab_packages

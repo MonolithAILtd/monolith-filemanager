@@ -22,7 +22,7 @@ tensorflow = "==2.2.0"
 protobuf = "==3.20.1"
 # numpy is also a subdependency of cadquery (via nptyping)
 numpy = "==1.22.4"
-pandas = "==1.3.4"
+pandas = "==1.2.5"
 dask = {version = "==2020.12.0", extras = ["complete"]}
 distributed = "==2021.1.1"
 dill = "==0.2.9"
