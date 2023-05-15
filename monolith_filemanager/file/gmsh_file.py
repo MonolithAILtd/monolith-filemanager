@@ -48,7 +48,7 @@ class GmshFile(File):
 
         # return out_data
 
-        model = cqkit.importers.import_step(self.path)
+        model = cqkit.import_step_file(self.path)
 
         return model
 
