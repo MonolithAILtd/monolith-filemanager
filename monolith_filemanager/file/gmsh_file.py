@@ -1,7 +1,7 @@
-#import tempfile
 from typing import Any, Union
 
 import cqkit
+from cadquery import cq
 
 from .base import File
 #from .errors import GmshFileError
@@ -22,35 +22,13 @@ class GmshFile(File):
         """
         super().__init__(path=path)
 
-    def read(self, **kwargs) -> Any:
+    def read(self, **kwargs) -> cq.Workplane:
         """
         Gets data from file defined by the file path.
-
-        :return: using tempfile as a buffer to converting a CAD file to a mesh
         """
 
-        # try:
-        #     import gmsh
-        # except ImportError:
-        #     raise GmshFileError(
-        #         message="loading a gmsh file relies on the gmsh module. Please install this module and try again."
-        #     )
-
-        # # if we initialize with sys.argv it could be anything
-        # gmsh.initialize()
-        # gmsh.option.setNumber("General.Terminal", 1)
-        # gmsh.model.add('Surface_Mesh_Generation')
-        # gmsh.open(self.path)
-
-        # # create a temporary file for the results
-        # out_data = tempfile.NamedTemporaryFile(suffix='.stl', delete=False)
-        # out_data.close()
-
-        # return out_data
-
-        model = cqkit.import_step_file(self.path)
-
-        return model
+        # The tag can be used to identify the workplane later e.g. in error reports
+        return cqkit.import_step_file(self.path).tag(self.path)
 
     def write(self, data: Any, **kwargs) -> None:
         """
