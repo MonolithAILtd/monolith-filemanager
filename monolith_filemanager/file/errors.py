@@ -42,12 +42,6 @@ class YamlFileError(Exception):
         super().__init__(message)
 
 
-class StlFileError(Exception):
-
-    def __init__(self, message: str) -> None:
-        super().__init__(message)
-
-
 class VtkFileError(Exception):
 
     def __init__(self, message: str) -> None:
@@ -78,13 +72,13 @@ class VTKFileError(Exception):
         super().__init__(message)
 
 
-class GmshFileError(Exception):
+class ProtobufFileError(Exception):
 
     def __init__(self, message: str) -> None:
         super().__init__(message)
 
 
-class ProtobufFileError(Exception):
+class StlObjectFileError(Exception):
 
-    def __init__(self, message: str) -> None:
+    def __init(self, message: str) -> None:
         super().__init__(message)
