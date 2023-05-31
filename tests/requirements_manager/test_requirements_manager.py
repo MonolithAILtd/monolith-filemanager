@@ -11,7 +11,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
-flask_packages = ["flask>=1.1.4", "tensorflow>=2.2.0", "boto3>=1.10.5", "protobuf>=3.20.1",
+flask_packages = ["flask>=1.1.4", "tensorflow>=2.2.0", "boto3>=1.10.5", "protobuf>=3.19.6",
                   "jinja2>=2.11.3", "itsdangerous>=1.1.0", "werkzeug>=1.0.1", "markupsafe>=2.0.1"]
 three_d_packages = ["pyvista>=0.34.2", "cqkit>=0.5.1", "cadquery>=2.2.0"]
 matlab_packages = ["scipy>=1.4.1"]
