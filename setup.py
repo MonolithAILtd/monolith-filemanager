@@ -11,7 +11,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
-__version__ = '1.1.1'
+__version__ = '2.0.0'
 
 class CustomBuildPy(build_py_orig):
     """
@@ -54,7 +54,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3',
+    python_requires='>=3.8',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
