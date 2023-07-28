@@ -7,7 +7,16 @@ name = "pypi"
 globre = "==0.1.5"
 h5py = "==2.10.0"
 joblib = "==0.15.0"
-flask = "==1.1.2"
+flask = "==1.1.4"
+# Pin flask subdependencies to continue using older version:
+# https://github.com/pallets/flask/issues/4494
+# https://stackoverflow.com/questions/71189819/importerror-cannot-import-name-json-from-itsdangerous
+# https://bobbyhadz.com/blog/python-importerror-cannot-import-name-baseresponse-from-werkzeug-wrappers
+# https://github.com/aws/aws-sam-cli/issues/3661
+jinja2 = "==2.11.3"
+itsdangerous = "==1.1.0"
+werkzeug = "==1.0.1"
+MarkupSafe = "==2.0.1"
 gmsh = "==4.9.0"
 tensorflow = "==2.2.0"
 # protobuf is a subdependency of tensorflow. It must be pinned to address:
