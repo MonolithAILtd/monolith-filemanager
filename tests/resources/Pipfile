@@ -10,6 +10,9 @@ joblib = "==0.15.0"
 flask = "==1.1.2"
 gmsh = "==4.9.0"
 tensorflow = "==2.2.0"
+# protobuf is a subdependency of tensorflow. It must be pinned to address:
+# https://protobuf.dev/news/2022-05-06/#python-updates
+protobuf = "==3.19.6"
 numpy = "==1.16.4"
 pandas = "==0.25.1"
 dask = {version = "==2020.12.0", extras = ["complete"]}

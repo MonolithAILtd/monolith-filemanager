@@ -5,12 +5,12 @@ from requirements_manager.errors import NoPackagesInPipfileError, PipfilePathDoe
 
 
 extras_packages = {
-    "flask": ["flask", "tensorflow", "boto3"],
+    "flask": ["flask", "tensorflow", "boto3", "protobuf"],
     "3d": ["pyvista", "gmsh"],
     "matlab": ["scipy"]
 }
 
-flask_packages = ["flask>=1.1.2", "tensorflow>=2.2.0", "boto3>=1.10.5"]
+flask_packages = ["flask>=1.1.2", "tensorflow>=2.2.0", "boto3>=1.10.5", "protobuf>=3.19.6"]
 three_d_packages = ["gmsh>=4.9.0", "pyvista>=0.34.2"]
 matlab_packages = ["scipy>=1.4.1"]
 
