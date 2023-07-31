@@ -247,18 +247,20 @@ class TestS3ProcessesAdapter(TestCase):
         test.ls()
         test._engine.ls.assert_called_once_with(storage_path=test.path.to_string.return_value)
 
+    @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_folder")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.delete_file")
     @patch("monolith_filemanager.adapters.s3_processes.S3ProcessesAdapter.__init__")
-    def test_batch_delete(self, mock_init, mock_delete_file):
+    def test_batch_delete(self, mock_init, mock_delete_file, mock_delete_folder):
         mock_init.return_value = None
         test = S3ProcessesAdapter(file_path="test/path")
         test.path = "test/path"
         test.path = "mock/folder/path"
-        mock_paths = ["mock_folder", "mock_file"]
+        mock_paths = ["mock_folder", "mock_file.file"]
         mock_delete_file.side_effect = [None, None]
+        mock_delete_folder.side_effect = [None, None]
         test.batch_delete(paths=mock_paths)
-        mock_delete_file.assert_has_calls = [call(path=test.path + mock_paths[0]),
-                                             call(path=test.path + mock_paths[1])]
+        mock_delete_folder.assert_has_calls = [call(path=test.path + mock_paths[0])]
+        mock_delete_file.assert_has_calls = [call(path=test.path + mock_paths[1])]
 
     def test_copy_file(self):
         mock_new_path = "mock/new/path"

@@ -7,15 +7,30 @@ name = "pypi"
 globre = "==0.1.5"
 h5py = "==2.10.0"
 joblib = "==0.15.0"
-flask = "==1.1.2"
-gmsh = "==4.8.4"
+flask = "==1.1.4"
+# Pin flask subdependencies to continue using older version:
+# https://github.com/pallets/flask/issues/4494
+# https://stackoverflow.com/questions/71189819/importerror-cannot-import-name-json-from-itsdangerous
+# https://bobbyhadz.com/blog/python-importerror-cannot-import-name-baseresponse-from-werkzeug-wrappers
+# https://github.com/aws/aws-sam-cli/issues/3661
+jinja2 = "==2.11.3"
+itsdangerous = "==1.1.0"
+werkzeug = "==1.0.1"
+MarkupSafe = "==2.0.1"
+gmsh = "==4.9.0"
 tensorflow = "==2.2.0"
+# protobuf is a subdependency of tensorflow. It must be pinned to address:
+# https://protobuf.dev/news/2022-05-06/#python-updates
+protobuf = "==3.19.6"
 numpy = "==1.16.4"
 pandas = "==0.25.1"
 dask = {version = "==2020.12.0", extras = ["complete"]}
 distributed = "==2021.1.1"
 dill = "==0.2.9"
-pyvista = "==0.24.2"
+# This version of pyvista is necessary to resolve an import issue. See these:
+# https://github.com/pyvista/pyvista/discussions/2858
+# https://github.com/pyvista/pyvista/pull/2912
+pyvista = "==0.34.2"
 pyyaml = "==5.1.2"
 boto3 = "==1.10.5"
 botocore = "==1.13.5"
