@@ -36,8 +36,7 @@ requirements = RequirementsManager()
 setuptools.setup(
     name="monolith_filemanager",
     version=__version__,
-    author="Maxwell Flitton",
-    author_email="maxwell@gmail.com",
+    author="Monolith AI",
     description="Python package for reading and writing files",
     long_description=long_description,
     long_description_content_type="text/markdown",
