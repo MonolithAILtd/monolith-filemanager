@@ -1,2 +1,2 @@
 # Must be one of either: patch, minor or major
-release_type: "patch"
+release_type: "major"
