@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from typing import Any, Tuple, List, Union, Optional
 
@@ -118,7 +119,16 @@ class Base(ABC):
         """
         for path in paths:
             del_path = FilePath(f"{self.path}/{path}")
-            self.delete_file(path=del_path)
+            # Assume that any path with no extension represents a folder. We must do this in order
+            # to append a trailing slash to the path later to prevent spurious folder deletion as
+            # a result of the use of the Prefix filter in boto3. Without this logic, deleting folder
+            # DirA would also delete DirA* (DirAB, DirABC etc.).
+            _, ext = os.path.splitext(del_path)
+
+            if ext:
+                self.delete_file(path=del_path)
+
+            self.delete_folder(path=del_path)
 
     @abstractmethod
     def rename_file(self, new_name: str) -> None:
