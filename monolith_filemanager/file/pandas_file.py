@@ -1,3 +1,4 @@
+import logging
 from typing import Union, Optional
 
 import dask.dataframe as dd
@@ -17,6 +18,14 @@ def dask_read_excel(path: str, **kwargs) -> dd.DataFrame:
     delayed_df = delayed(pd.read_excel)(path)
     return dd.from_delayed(delayed_df)
 
+def pandas_read_xlsx(path: str) -> pd.DataFrame:
+    # https://stackoverflow.com/questions/65250207/pandas-cannot-open-an-excel-xlsx-file
+    # This is only required until we upgrade pandas to >=1.3.0, at which point openpyxl is used by
+    # default for xlsx:
+    # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html#pandas.read_excel
+    logging.warning(f"AESC: pandas_read_xlsx({path})")
+    return pd.read_excel(path, engine='openpyxl')
+
 
 class PandasFile(File):
     """
@@ -26,7 +35,7 @@ class PandasFile(File):
         "parquet": pd.read_parquet,
         "csv": pd.read_csv,
         "xls": pd.read_excel,
-        "xlsx": pd.read_excel,
+        "xlsx": pandas_read_xlsx,
         "dat": pd.read_table,
         "data": pd.read_table
     }
