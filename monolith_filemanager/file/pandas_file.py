@@ -18,6 +18,10 @@ def dask_read_excel(path: str, **kwargs) -> dd.DataFrame:
     delayed_df = delayed(pd.read_excel)(path)
     return dd.from_delayed(delayed_df)
 
+def dask_read_xlsx(path: str, **kwargs) -> dd.DataFrame:
+    delayed_df = delayed(pandas_read_xlsx)(path)
+    return dd.from_delayed(delayed_df)
+
 def pandas_read_xlsx(path: str) -> pd.DataFrame:
     # https://stackoverflow.com/questions/65250207/pandas-cannot-open-an-excel-xlsx-file
     # This is only required until we upgrade pandas to >=1.3.0, at which point openpyxl is used by
@@ -44,7 +48,7 @@ class PandasFile(File):
         "parquet": dd.read_parquet,
         "csv": dd.read_csv,
         "xls": dask_read_excel,
-        "xlsx": dask_read_excel,
+        "xlsx": dask_read_xlsx,
         "dat": dd.read_table,
         "data": dd.read_table
     }
