@@ -1,7 +1,7 @@
 --index-url https://dssucks:sw4tw!@pypi.monolithai.app
 -c constraints.txt
 h5py==2.10.0
-joblib==0.15.0
+joblib>=0.15.0
 flask==1.1.4
 # Pin flask subdependencies to continue using older version:
 # https://github.com/pallets/flask/issues/4494
