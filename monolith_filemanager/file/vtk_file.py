@@ -50,20 +50,20 @@ def expand_3d_point_arrays(mesh):
     @param mesh:  (pv.PolyData) input mesh to expand
     @return: (pv.PolyData) mesh with expanded point surfaces
     """
-    if all(arr.shape[-1] == 1 for arr in mesh.point_arrays.values()):
+    if all(arr.shape[-1] == 1 for arr in mesh.point_data.values()):
         return mesh
 
     new_mesh = mesh.copy()
     new_mesh.clear_point_arrays()
 
-    for key, arr in mesh.point_arrays.items():
+    for key, arr in mesh.point_data.items():
         if arr.shape[-1] == 3:
-            new_mesh.point_arrays.update({f'{key}:X': arr[:, 0],
+            new_mesh.point_data.update({f'{key}:X': arr[:, 0],
                                           f'{key}:Y': arr[:, 1],
                                           f'{key}:Z': arr[:, 2],
                                           f'{key}:Magnitude': np.linalg.norm(arr, axis=1),
                                           })
         else:
-            new_mesh.point_arrays[key] = arr
+            new_mesh.point_data[key] = arr
 
     return new_mesh
