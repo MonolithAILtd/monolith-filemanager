@@ -2,7 +2,6 @@ import setuptools
 from setuptools import find_packages
 from setuptools.command.build_py import build_py as build_py_orig
 
-from requirements_manager import RequirementsManager, OperatorEnum
 
 extras_packages = {
     "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja2", "itsdangerous", "werkzeug",
@@ -11,7 +10,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
-__version__ = '2.1.0'
+__version__ = '3.0.0'
 
 class CustomBuildPy(build_py_orig):
     """
@@ -29,8 +28,6 @@ directives = {
     'language_level': 3,
     'always_allow_keywords': True
 }
-
-requirements = RequirementsManager()
 
 
 setuptools.setup(
@@ -56,7 +53,6 @@ setuptools.setup(
         'dask[complete]==2020.12.0',
         'distributed==2021.1.1',
         'dill==0.2.9',
-        'pyvista==0.34.2',
         'pyyaml==5.1.2',
         'boto3==1.10.5',
         'botocore==1.13.5',
