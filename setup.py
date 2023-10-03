@@ -56,7 +56,6 @@ setuptools.setup(
         'dask[complete]==2020.12.0',
         'distributed==2021.1.1',
         'dill==0.2.9',
-        'pyvista==0.34.2',
         'pyyaml==5.1.2',
         'boto3==1.10.5',
         'botocore==1.13.5',
