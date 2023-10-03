@@ -2,7 +2,6 @@ import setuptools
 from setuptools import find_packages
 from setuptools.command.build_py import build_py as build_py_orig
 
-from requirements_manager import RequirementsManager, OperatorEnum
 
 extras_packages = {
     "flask": ["flask", "tensorflow", "boto3", "protobuf", "jinja2", "itsdangerous", "werkzeug",
@@ -29,8 +28,6 @@ directives = {
     'language_level': 3,
     'always_allow_keywords': True
 }
-
-requirements = RequirementsManager()
 
 
 setuptools.setup(
