@@ -11,7 +11,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
-__version__ = '2.0.0'
+__version__ = '2.1.0'
 
 class CustomBuildPy(build_py_orig):
     """
