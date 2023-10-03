@@ -15,14 +15,10 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-      - name: Install pipenv
-        run: |
-          python -m pip install --upgrade pip
-          pip install pipenv
-      - name: Install dependencies using pipenv
-        run: pipenv sync
+      - name: Install dependencies
+        run: pip install -r requirements.txt
       - name: update version
-        run: pipenv run python get_latest_version.py
+        run: python get_latest_version.py
       - name: install deployment dependancies
         if: github.event.pull_request.merged == true
         run: |
@@ -30,12 +26,12 @@ jobs:
           pip install pexpect
       - name: package module
         if: github.event.pull_request.merged == true
-        run: pipenv run python setup.py sdist
+        run: python setup.py sdist
       - name: deploy to pypi
         if: github.event.pull_request.merged == true
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
         run: |
-          pipenv run python setup.py sdist
+          python setup.py sdist
           twine upload dist/*
