@@ -10,7 +10,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
-__version__ = '3.1.1'
+__version__ = '3.2.0'
 
 class CustomBuildPy(build_py_orig):
     """
