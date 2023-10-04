@@ -10,7 +10,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
-__version__ = '3.2.0'
+__version__ = '3.2.1'
 
 class CustomBuildPy(build_py_orig):
     """
@@ -46,7 +46,7 @@ setuptools.setup(
         'itsdangerous>=1.1.0',
         'werkzeug>=1.0.1',
         'MarkupSafe>=2.0.1',
-        'tensorflow==2.2.0',
+        'tensorflow>=2.12.0',
         'protobuf==3.19.6',
         'numpy==1.22.4',
         'pandas==1.0.5',
