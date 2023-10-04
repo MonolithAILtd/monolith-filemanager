@@ -10,7 +10,7 @@ extras_packages = {
     "matlab": ["scipy"]
 }
 
-__version__ = '3.1.0'
+__version__ = '3.1.1'
 
 class CustomBuildPy(build_py_orig):
     """
@@ -40,7 +40,7 @@ setuptools.setup(
     url="https://github.com/MonolithAILtd/monolith-filemanager",
     install_requires=[
         'h5py==2.10.0',
-        'joblib==0.15.0',
+        'joblib>=0.15.0',
         'flask==1.1.4',
         'jinja2==2.11.3',
         'itsdangerous==1.1.0',
