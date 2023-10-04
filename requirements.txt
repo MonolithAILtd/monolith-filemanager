@@ -12,7 +12,7 @@ jinja2>=2.11.3
 itsdangerous>=1.1.0
 werkzeug>=1.0.1
 MarkupSafe>=2.0.1
-tensorflow>=2.2.0
+tensorflow==2.2.0
 # protobuf is a subdependency of tensorflow. It must be pinned to address:
 # https://protobuf.dev/news/2022-05-06/#python-updates
 protobuf==3.19.6
