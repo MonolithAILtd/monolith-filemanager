@@ -75,8 +75,6 @@ class PandasFile(File):
         lazy: bool = False,
         chunk_size: Union[int, str] = "256MB",
         reset_index_if_eager: bool = True,
-        row_start: int = None,
-        row_end: int = None,
         **kwargs,
     ) -> DataFrameType:
         """
@@ -96,6 +94,9 @@ class PandasFile(File):
             "skip_instance_cache": True,
         }
 
+
+        row_start = kwargs.get('row_start',None)
+        row_end = kwargs.get('row_end',None)
         if row_start and row_end:
             df = self._partial_read_pandas(row_start, row_end)
         else:
