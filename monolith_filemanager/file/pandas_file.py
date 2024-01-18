@@ -1,16 +1,18 @@
 import logging
-from typing import Union, Optional
+from typing import Optional, Union
 
 import dask.dataframe as dd
 import pandas as pd
 from dask import delayed
 from dask.callbacks import Callback
 
+from ..path import FilePath
 from .base import File
 from .errors import PandasFileError
-from ..path import FilePath
 
-PandasLoadMethod = Union[pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_table, pd.read_table]
+PandasLoadMethod = Union[
+    pd.read_parquet, pd.read_csv, pd.read_excel, pd.read_table, pd.read_table
+]
 DataFrameType = Union[pd.DataFrame, dd.DataFrame]
 
 
@@ -18,9 +20,11 @@ def dask_read_excel(path: str, **kwargs) -> dd.DataFrame:
     delayed_df = delayed(pd.read_excel)(path)
     return dd.from_delayed(delayed_df)
 
+
 def dask_read_xlsx(path: str, **kwargs) -> dd.DataFrame:
     delayed_df = delayed(pandas_read_xlsx)(path)
     return dd.from_delayed(delayed_df)
+
 
 def pandas_read_xlsx(path: str) -> pd.DataFrame:
     # https://stackoverflow.com/questions/65250207/pandas-cannot-open-an-excel-xlsx-file
@@ -28,20 +32,21 @@ def pandas_read_xlsx(path: str) -> pd.DataFrame:
     # default for xlsx:
     # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html#pandas.read_excel
     logging.warning(f"AESC: pandas_read_xlsx({path})")
-    return pd.read_excel(path, engine='openpyxl')
+    return pd.read_excel(path, engine="openpyxl")
 
 
 class PandasFile(File):
     """
     This is a class for managing the reading and writing of data to files for pandas data frames.
     """
+
     PANDAS_LOADING_METHODS = {
         "parquet": pd.read_parquet,
         "csv": pd.read_csv,
         "xls": pd.read_excel,
         "xlsx": pandas_read_xlsx,
         "dat": pd.read_table,
-        "data": pd.read_table
+        "data": pd.read_table,
     }
 
     DASK_LOADING_METHODS = {
@@ -50,7 +55,7 @@ class PandasFile(File):
         "xls": dask_read_excel,
         "xlsx": dask_read_xlsx,
         "dat": dd.read_table,
-        "data": dd.read_table
+        "data": dd.read_table,
     }
 
     PANDAS_SUPPORTED_FORMATS = list(PANDAS_LOADING_METHODS)
@@ -65,8 +70,15 @@ class PandasFile(File):
         """
         super().__init__(path=path)
 
-    def read(self, lazy: bool = False, chunk_size: Union[int, str] = '256MB', reset_index_if_eager: bool = True,
-             **kwargs) -> DataFrameType:
+    def read(
+        self,
+        lazy: bool = False,
+        chunk_size: Union[int, str] = "256MB",
+        reset_index_if_eager: bool = True,
+        row_start: int = None,
+        row_end: int = None,
+        **kwargs,
+    ) -> DataFrameType:
         """
         Gets data from file defined by file path.
         If `lazy` is True, then returns a Dask DataFrame.
@@ -79,18 +91,37 @@ class PandasFile(File):
             Only resets the index of pandas dataframes
         :return: (DataFrameType) Data from file
         """
-        storage_options = {'config_kwargs': {'max_pool_connections': 32}, 'skip_instance_cache': True}
-        df = self._read_dask(chunk_size, storage_options=storage_options, **kwargs) if lazy \
-            else self._read_dask(chunk_size, storage_options=storage_options, **kwargs).compute()
+        storage_options = {
+            "config_kwargs": {"max_pool_connections": 32},
+            "skip_instance_cache": True,
+        }
 
-        if reset_index_if_eager and not lazy:
-            # Reset the index of pandas dataframes if requested
-            df = df.reset_index(drop=True)
+        if row_start and row_end:
+            df = self._partial_read_pandas(row_start, row_end)
+        else:
+            df = (
+                self._read_dask(chunk_size, storage_options=storage_options, **kwargs)
+                if lazy
+                else self._read_dask(
+                    chunk_size, storage_options=storage_options, **kwargs
+                ).compute()
+            )
+
+            if reset_index_if_eager and not lazy:
+                # Reset the index of pandas dataframes if requested
+                df = df.reset_index(drop=True)
 
         return df
 
-    def write(self, data: DataFrameType, repartition: bool = False, divisions: Union[int, str] = '64MB',
-              scheduler: str = 'threads', cb: Optional[Callback] = None, **kwargs) -> None:
+    def write(
+        self,
+        data: DataFrameType,
+        repartition: bool = False,
+        divisions: Union[int, str] = "64MB",
+        scheduler: str = "threads",
+        cb: Optional[Callback] = None,
+        **kwargs,
+    ) -> None:
         """
         Writes data to file.
 
@@ -107,8 +138,10 @@ class PandasFile(File):
         """
 
         if not isinstance(data, (pd.DataFrame, dd.DataFrame)):
-            raise PandasFileError(message=f'Data passed to write method isn\'t a pandas or dask DataFrame. '
-                                          f'Please use a DataFrame for {self.DASK_SUPPORTED_FORMATS}')
+            raise PandasFileError(
+                message=f"Data passed to write method isn't a pandas or dask DataFrame. "
+                f"Please use a DataFrame for {self.DASK_SUPPORTED_FORMATS}"
+            )
 
         if isinstance(data, pd.DataFrame):
             data = dd.from_pandas(data, npartitions=1, sort=False)
@@ -132,14 +165,16 @@ class PandasFile(File):
         :param scheduler: (str) Dask local scheduler type to use for computation.
             Choose from "threads", "single-threaded", or "processes"
         """
-        if path.file_type in ('xls', 'xlsx'):
+        if path.file_type in ("xls", "xlsx"):
             df.compute(scheduler=scheduler).to_excel(path),
-        elif path.file_type in ('csv', 'dat', 'data'):
-            df.to_csv(path, compute_kwargs={'scheduler': scheduler}, single_file=True)
-        elif path.file_type in ('parquet',):
-            df.to_parquet(path, compute_kwargs={'scheduler': scheduler})
+        elif path.file_type in ("csv", "dat", "data"):
+            df.to_csv(path, compute_kwargs={"scheduler": scheduler}, single_file=True)
+        elif path.file_type in ("parquet",):
+            df.to_parquet(path, compute_kwargs={"scheduler": scheduler})
         else:
-            raise ValueError(f'Failed writing dataframe to file. File type {path.file_type} not known.')
+            raise ValueError(
+                f"Failed writing dataframe to file. File type {path.file_type} not known."
+            )
 
     def _read_dask(self, chunk_size: Union[int, str], **kwargs) -> dd.DataFrame:
         """
@@ -149,14 +184,38 @@ class PandasFile(File):
         :return: dask DataFrame from file
         """
         if self.path.file_type not in self.DASK_SUPPORTED_FORMATS:
-            raise PandasFileError(f'File type {self.path.file_type} not supported for lazy loading.')
+            raise PandasFileError(
+                f"File type {self.path.file_type} not supported for lazy loading."
+            )
 
-        if self.path.file_type in ('xls', 'xlsx'):
+        if self.path.file_type in ("xls", "xlsx"):
             return self.DASK_LOADING_METHODS[self.path.file_type](self.path, **kwargs)
-        elif self.path.file_type in ('parquet',):
-            return self.DASK_LOADING_METHODS[self.path.file_type](self.path, chunksize=chunk_size, **kwargs)
+        elif self.path.file_type in ("parquet",):
+            return self.DASK_LOADING_METHODS[self.path.file_type](
+                self.path, chunksize=chunk_size, **kwargs
+            )
 
-        return self.DASK_LOADING_METHODS[self.path.file_type](self.path, blocksize=chunk_size, **kwargs)
+        return self.DASK_LOADING_METHODS[self.path.file_type](
+            self.path, blocksize=chunk_size, **kwargs
+        )
+
+    def _partial_read_pandas(self, row_start: int, row_end: int) -> pd.DataFrame:
+        """
+        Read from file using pandas loading method for reading between row_start and row_end
+
+        :param chunk_size: (int or str) dask-compatible maximum partition size. Interpreted as number of bytes.
+        :return: dask DataFrame from file
+        """
+        if self.path.file_type not in self.PANDAS_SUPPORTED_FORMATS:
+            raise PandasFileError(
+                f"File type {self.path.file_type} not supported by pandas."
+            )
+
+        skip_rows = max(row_start - 1, 0)  # Adjust for zero-based index
+        nrows = row_end - row_start
+        return self.PANDAS_LOADING_METHODS[self.path.file_type](
+            self.path, skiprows=skip_rows, nrows=nrows
+        )
 
     @staticmethod
     def supports_s3():
