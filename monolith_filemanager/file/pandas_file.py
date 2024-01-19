@@ -219,12 +219,12 @@ class PandasFile(File):
             skip_rows = max(row_start - 1, 0)  # Adjust for zero-based index
             nrows = row_end - row_start
 
-            logging(f"**************** MAX ROWS ***********************")
-            logging(f"**************** MAX ROWS ***********************")
-            logging(f"**************** MAX ROWS ***********************")
-            logging(f"row start: {row_start} row__end: {row_end}")
-            logging(f"skiprows: {skip_rows} row__end: {nrows}")
-            logging(
+            print(f"**************** MAX ROWS ***********************")
+            print(f"**************** MAX ROWS ***********************")
+            print(f"**************** MAX ROWS ***********************")
+            print(f"row start: {row_start} row__end: {row_end}")
+            print(f"skiprows: {skip_rows} row__end: {nrows}")
+            print(
                 f"self.PANDAS_LOADING_METHODS[self.path.file_type]: {self.PANDAS_LOADING_METHODS[self.path.file_type]}"
             )
 
