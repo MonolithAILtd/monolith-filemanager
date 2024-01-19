@@ -26,13 +26,13 @@ def dask_read_xlsx(path: str, **kwargs) -> dd.DataFrame:
     return dd.from_delayed(delayed_df)
 
 
-def pandas_read_xlsx(path: str) -> pd.DataFrame:
+def pandas_read_xlsx(path: str, skiprows: int, nrows: int) -> pd.DataFrame:
     # https://stackoverflow.com/questions/65250207/pandas-cannot-open-an-excel-xlsx-file
     # This is only required until we upgrade pandas to >=1.3.0, at which point openpyxl is used by
     # default for xlsx:
     # https://pandas.pydata.org/docs/reference/api/pandas.read_excel.html#pandas.read_excel
     logging.warning(f"AESC: pandas_read_xlsx({path})")
-    return pd.read_excel(path, engine="openpyxl")
+    return pd.read_excel(path, engine="openpyxl", skiprows=skiprows, nrows=nrows)
 
 
 class PandasFile(File):
@@ -94,9 +94,8 @@ class PandasFile(File):
             "skip_instance_cache": True,
         }
 
-
-        row_start = kwargs.get('row_start',None)
-        row_end = kwargs.get('row_end',None)
+        row_start = kwargs.get("row_start", None)
+        row_end = kwargs.get("row_end", None)
         if row_start and row_end:
             df = self._partial_read_pandas(row_start, row_end)
         else:
@@ -200,7 +199,7 @@ class PandasFile(File):
             self.path, blocksize=chunk_size, **kwargs
         )
 
-    def _partial_read_pandas(self, row_start: int, row_end: int) -> pd.DataFrame:
+    def _partial_read(self, row_start: int, row_end: int) -> pd.DataFrame:
         """
         Read from file using pandas loading method for reading between row_start and row_end
 
@@ -212,8 +211,23 @@ class PandasFile(File):
                 f"File type {self.path.file_type} not supported by pandas."
             )
 
+        if self.path.file_type == "parquet":
+            self.DASK_LOADING_METHODS[self.path.file_type](self.path).head(
+                row_end
+            ).compute()
+
         skip_rows = max(row_start - 1, 0)  # Adjust for zero-based index
         nrows = row_end - row_start
+
+        logging(f"**************** MAX ROWS ***********************")
+        logging(f"**************** MAX ROWS ***********************")
+        logging(f"**************** MAX ROWS ***********************")
+        logging(f"row start: {row_start} row__end: {row_end}")
+        logging(f"skiprows: {skip_rows} row__end: {nrows}")
+        logging(
+            f"self.PANDAS_LOADING_METHODS[self.path.file_type]: {self.PANDAS_LOADING_METHODS[self.path.file_type]}"
+        )
+
         return self.PANDAS_LOADING_METHODS[self.path.file_type](
             self.path, skiprows=skip_rows, nrows=nrows
         )
