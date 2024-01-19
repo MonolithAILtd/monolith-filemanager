@@ -75,7 +75,6 @@ class PandasFile(File):
         lazy: bool = False,
         chunk_size: Union[int, str] = "256MB",
         reset_index_if_eager: bool = True,
-        row_start: int = None,
         row_end: int = None,
         **kwargs,
     ) -> DataFrameType:
@@ -96,8 +95,8 @@ class PandasFile(File):
             "skip_instance_cache": True,
         }
 
-        if row_start is not None and row_end is not None:
-            df = self._partial_read(row_start, row_end)
+        if row_end is not None:
+            df = self._partial_read(row_end)
         else:
             df = (
                 self._read_dask(chunk_size, storage_options=storage_options, **kwargs)
@@ -199,7 +198,7 @@ class PandasFile(File):
             self.path, blocksize=chunk_size, **kwargs
         )
 
-    def _partial_read(self, row_start: int, row_end: int) -> pd.DataFrame:
+    def _partial_read(self, row_end: int) -> pd.DataFrame:
         """
         Read from file using pandas loading method for reading between row_start and row_end
 
@@ -216,9 +215,7 @@ class PandasFile(File):
                 row_end
             )
         else:
-            skip_rows = max(row_start - 1, 0)  # Adjust for zero-based index
-            nrows = row_end - row_start
-
+            row_start = 0
             print(f"**************** MAX ROWS ***********************")
             print(f"**************** MAX ROWS ***********************")
             print(f"**************** MAX ROWS ***********************")
@@ -229,7 +226,7 @@ class PandasFile(File):
             )
 
             return self.PANDAS_LOADING_METHODS[self.path.file_type](
-                self.path, skiprows=skip_rows, nrows=nrows
+                self.path, skiprows=row_start, nrows=row_end
             )
 
     @staticmethod
