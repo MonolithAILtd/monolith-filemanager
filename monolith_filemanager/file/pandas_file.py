@@ -96,7 +96,7 @@ class PandasFile(File):
         }
 
         if row_end is not None:
-            df = self._partial_read(row_end)
+            df = self._partial_read(chunk_size, row_end, **kwargs)
         else:
             df = (
                 self._read_dask(chunk_size, storage_options=storage_options, **kwargs)
@@ -198,7 +198,9 @@ class PandasFile(File):
             self.path, blocksize=chunk_size, **kwargs
         )
 
-    def _partial_read(self, row_end: int) -> pd.DataFrame:
+    def _partial_read(
+        self, chunk_size: Union[int, str], row_end: int, **kwargs
+    ) -> pd.DataFrame:
         """
         Read from file using pandas loading method for reading between row_start and row_end
 
@@ -211,9 +213,9 @@ class PandasFile(File):
             )
 
         if self.path.file_type == "parquet":
-            return self.DASK_LOADING_METHODS[self.path.file_type](self.path).head(
-                row_end
-            )
+            return self.DASK_LOADING_METHODS[self.path.file_type](
+                self.path, chunksize=chunk_size, **kwargs
+            ).head(row_end)
         else:
             row_start = 0
             print(f"**************** MAX ROWS ***********************")
