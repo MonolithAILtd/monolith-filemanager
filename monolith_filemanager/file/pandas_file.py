@@ -212,7 +212,9 @@ class PandasFile(File):
             )
 
         if self.path.file_type == "parquet":
-            self.DASK_LOADING_METHODS[self.path.file_type](self.path).head(row_end)
+            return self.DASK_LOADING_METHODS[self.path.file_type](self.path).head(
+                row_end
+            )
         else:
             skip_rows = max(row_start - 1, 0)  # Adjust for zero-based index
             nrows = row_end - row_start
