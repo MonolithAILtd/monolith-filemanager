@@ -75,6 +75,8 @@ class PandasFile(File):
         lazy: bool = False,
         chunk_size: Union[int, str] = "256MB",
         reset_index_if_eager: bool = True,
+        row_start: int = None,
+        row_end: int = None,
         **kwargs,
     ) -> DataFrameType:
         """
@@ -94,10 +96,8 @@ class PandasFile(File):
             "skip_instance_cache": True,
         }
 
-        row_start = kwargs.get("row_start", None)
-        row_end = kwargs.get("row_end", None)
         if row_start and row_end:
-            df = self._partial_read_pandas(row_start, row_end)
+            df = self._partial_read(row_start, row_end)
         else:
             df = (
                 self._read_dask(chunk_size, storage_options=storage_options, **kwargs)
@@ -215,22 +215,22 @@ class PandasFile(File):
             self.DASK_LOADING_METHODS[self.path.file_type](self.path).head(
                 row_end
             ).compute()
+        else:
+            skip_rows = max(row_start - 1, 0)  # Adjust for zero-based index
+            nrows = row_end - row_start
 
-        skip_rows = max(row_start - 1, 0)  # Adjust for zero-based index
-        nrows = row_end - row_start
+            logging(f"**************** MAX ROWS ***********************")
+            logging(f"**************** MAX ROWS ***********************")
+            logging(f"**************** MAX ROWS ***********************")
+            logging(f"row start: {row_start} row__end: {row_end}")
+            logging(f"skiprows: {skip_rows} row__end: {nrows}")
+            logging(
+                f"self.PANDAS_LOADING_METHODS[self.path.file_type]: {self.PANDAS_LOADING_METHODS[self.path.file_type]}"
+            )
 
-        logging(f"**************** MAX ROWS ***********************")
-        logging(f"**************** MAX ROWS ***********************")
-        logging(f"**************** MAX ROWS ***********************")
-        logging(f"row start: {row_start} row__end: {row_end}")
-        logging(f"skiprows: {skip_rows} row__end: {nrows}")
-        logging(
-            f"self.PANDAS_LOADING_METHODS[self.path.file_type]: {self.PANDAS_LOADING_METHODS[self.path.file_type]}"
-        )
-
-        return self.PANDAS_LOADING_METHODS[self.path.file_type](
-            self.path, skiprows=skip_rows, nrows=nrows
-        )
+            return self.PANDAS_LOADING_METHODS[self.path.file_type](
+                self.path, skiprows=skip_rows, nrows=nrows
+            )
 
     @staticmethod
     def supports_s3():
