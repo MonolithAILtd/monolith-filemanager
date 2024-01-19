@@ -96,7 +96,7 @@ class PandasFile(File):
             "skip_instance_cache": True,
         }
 
-        if row_start and row_end:
+        if row_start is not None and row_end is not None:
             df = self._partial_read(row_start, row_end)
         else:
             df = (
